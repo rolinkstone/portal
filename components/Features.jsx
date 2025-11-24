@@ -59,9 +59,22 @@ export default function Features() {
                 </div>
                 <h3 className="text-xl font-semibold">{f.title}</h3>
                 <p className="text-gray-600 mt-2 mb-4">{f.desc}</p>
-                <a href={f.title === "Berdikari" ? "https://berdikari.bbpompky.id" : "#"} target={f.title === "Berdikari" ? "_blank" : "_self"} className="text-green-600 font-medium flex items-center gap-2">
+                <a
+                href={
+                    f.title === "Berdikari"
+                      ? "https://berdikari.bbpompky.id"
+                      : f.title === "Smart Laura"
+                      ? "inovasi/smart-laura"
+                      : "#"
+                      ? "inovasi/kahayan-tutu-bahalap"
+                      : "#"
+                  }
+                  target={f.title === "Berdikari" ? "_blank" : "_self"}
+                  className="text-green-600 font-medium flex items-center gap-2"
+                >
                   Selengkapnya ➜
                 </a>
+
               </div>
             </motion.div>
           ))}
