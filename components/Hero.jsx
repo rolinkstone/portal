@@ -5,7 +5,7 @@ export default function Hero() {
   // Daftar gambar background slider
   const slides = [
    
-    "Hero/bg4.jpeg",
+    "/Hero/bg4.jpeg",
   ];
 
   const [current, setCurrent] = useState(0);

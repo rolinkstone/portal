@@ -67,7 +67,7 @@ export default function Internal() {
   }, []);
 
   return (
-    <section className="py-20 bg-white relative">
+    <section id="internal" className="py-20 bg-white relative">
       <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
         Layanan <span className="text-green-400">Internal</span> Balai Besar POM di Palangka Raya
       </h2>

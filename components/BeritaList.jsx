@@ -6,12 +6,7 @@ export default async function BeritaList() {
   const data = await res.json();
 
   return (
-    <section
-      className="
-        py-20
-        bg-gradient-to-b from-[#0A1A2F] via-[#0F2A4A] to-[#14385F]
-      "
-    >
+    <section id="berita" className="py-20 bg-gradient-to-b from-[#0A1A2F] via-[#0F2A4A] to-[#14385F]">
       <div className="flex justify-center mt-8 mb-12">
         <div className="w-full max-w-5xl">
           <h2 className="text-2xl font-bold mb-6 text-center text-white">
