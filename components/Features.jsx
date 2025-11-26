@@ -21,15 +21,27 @@ export default function Features() {
   }, []);
 
   const smallItems = [
-    { title: "Aksi Bang Kahar", desc: "Ajang Silaturahmi Melalui Bangun Nilai Keharmonisan", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "TRANMISI UMKM", desc: "Transformasi Digitalisasi Pendukung UMKM", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "PODCAST OM PRAYA", desc: "Podcast Obat dan Makanan Balai Besar POM di Palangka Raya", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "JENDELA KINERJA", desc: "Dashboard Kinerja BBPOM Palangka Raya", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "SIKAP GASPOL", desc: "Sistem Kanal Pengaduan Gas Pol (Cepat Tanggap)", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "BALANGA", desc: "Braille Layanan Publik dan Keamanan Pangan", img: "Inovasi/aoc/logo-aoc.png" },
-    { title: "SERASI BERAKHLAK", desc: "Sosialisasi, Edukasi Kepada Masyarakat melalui Serial Video BerAKHLAK", img: "Inovasi/aoc/logo-aoc.png" },
-   
-  ];
+  { 
+    title: "Aksi Bang Kahar", 
+    desc: "Ajang Silaturahmi Melalui Bangun Nilai Keharmonisan", 
+    img: "Inovasi/aoc/logo-aoc.png",
+    link: "/inovasi/aksi-bang-kahar"
+  },
+  { title: "TRANMISI UMKM", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
+  { title: "PODCAST OM PRAYA", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
+
+  { 
+    title: "JENDELA KINERJA", 
+    desc: "Dashboard Kinerja BBPOM Palangka Raya", 
+    img: "Inovasi/aoc/logo-aoc.png",
+    link: "/inovasi/jendela-kinerja"
+  },
+
+  { title: "SIKAP GASPOL", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
+  { title: "BALANGA", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
+  { title: "SERASI BERAKHLAK", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
+];
+
 
   const containerVariants = { hidden: {}, show: { transition: { staggerChildren: 0.2 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } };
@@ -89,15 +101,28 @@ export default function Features() {
             ▶
           </button>
 
-          <motion.div className="flex gap-4 transition-transform duration-500" style={{ transform: `translateX(-${startIndex * cardWidth}px)` }}>
+          <motion.div 
+            className="flex gap-4 transition-transform duration-500" 
+            style={{ transform: `translateX(-${startIndex * cardWidth}px)` }}
+          >
             {smallItems.map((f, i) => (
-              <motion.div key={i} className="min-w-[200px] border rounded-lg overflow-hidden p-4 flex flex-col items-center text-center bg-white shadow hover:shadow-md transition" variants={itemVariants}>
-                <img src={f.img} className="w-16 h-16 object-cover mb-2 rounded-full" alt={f.title} />
+              <motion.a
+                key={i}
+                href={f.link ? f.link : "#"}
+                className="min-w-[200px] border rounded-lg overflow-hidden p-4 flex flex-col items-center text-center bg-white shadow hover:shadow-md transition cursor-pointer"
+                variants={itemVariants}
+              >
+                <img 
+                  src={f.img} 
+                  className="w-16 h-16 object-cover mb-2 rounded-full" 
+                  alt={f.title} 
+                />
                 <h4 className="font-semibold">{f.title}</h4>
                 <p className="text-sm text-gray-600">{f.desc}</p>
-              </motion.div>
+              </motion.a>
             ))}
           </motion.div>
+
         </div>
       </div>
     </section>
