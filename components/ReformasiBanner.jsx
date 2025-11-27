@@ -10,17 +10,31 @@ export default function ReformasiBanner() {
       rel="noopener noreferrer"
       className="block w-full"
     >
-      <section className="relative w-full cursor-pointer overflow-hidden h-40 md:h-50 bg-black">
-        <motion.video
-          src="/rb/rb.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-contain shadow-2xl mx-auto transform transition-transform duration-500"
-          whileHover={{ scale: 1.03 }}
-        />
-      </section>
+    <section className="relative w-full cursor-pointer overflow-hidden bg-black">
+  <picture onClick={() => window.open("https://rb.bbpompky.id", "_blank")}>
+    {/* Desktop */}
+    <source
+      srcSet="/rb/rb-desktop.gif"
+      media="(min-width: 1024px)"
+    />
+
+    {/* Tablet */}
+    <source
+      srcSet="/rb/rb-tablet.gif"
+      media="(min-width: 768px)"
+    />
+
+    {/* Mobile */}
+    <img
+      src="/rb/rb-mobile.gif"
+      alt="Reformasi Birokrasi"
+      className="w-full h-auto cursor-pointer"
+    />
+  </picture>
+</section>
+
+
+
     </a>
   );
 }
