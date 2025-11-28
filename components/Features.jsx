@@ -28,13 +28,19 @@ export default function Features() {
     link: "/inovasi/aksi-bang-kahar"
   },
   { title: "TRANMISI UMKM", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
-  { title: "PODCAST OM PRAYA", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
-
+  
   { 
     title: "JENDELA KINERJA", 
     desc: "Dashboard Kinerja BBPOM Palangka Raya", 
     img: "Inovasi/aoc/logo-aoc.png",
     link: "/inovasi/jendela-kinerja"
+  },
+
+  { 
+    title: "PODCAST OM", 
+    desc: "Podcast Obat dan Makanan Balai Besar POM di Palangka Raya", 
+    img: "Inovasi/aoc/logo-aoc.png",
+    link: "/inovasi/podcast-om"
   },
 
   { title: "SIKAP GASPOL", desc: "...", img: "Inovasi/aoc/logo-aoc.png" },
