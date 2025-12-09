@@ -1,9 +1,18 @@
 import type { NextConfig } from "next";
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  // tambahkan ini ↓↓↓
+  outputFileTracingRoot: __dirname,
+
   images: {
-    domains: ["i.ytimg.com"], // tambahkan host YouTube thumbnails
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
+    ],
   },
 };
 
