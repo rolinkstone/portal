@@ -5,57 +5,75 @@ export async function GET() {
     const connection = await pool.getConnection();
 
     const now = new Date();
-    const tanggalYmd = now.toISOString().slice(0, 10).replace(/-/g, "");
+    const todaySQL = now.toISOString().slice(0, 10); // Format YYYY-MM-DD
     const bulanNow = String(now.getMonth() + 1).padStart(2, "0");
     const tahunNow = now.getFullYear();
-    const todaySQL = now.toISOString().slice(0, 10);
-    const batasWaktu = Math.floor(Date.now() / 1000) - 300;
+    const batasWaktu = Math.floor(Date.now() / 1000) - 300; // 5 menit yang lalu
 
-    // Query
+    console.log(`Query untuk tanggal: ${todaySQL}, bulan: ${bulanNow}, tahun: ${tahunNow}`);
+
+    // Query 1: Pengunjung Hari Ini
     const [pengunjungHariIniResult] = await connection.execute(
-      "SELECT ip FROM statistik WHERE tanggal = ? GROUP BY ip",
-      [tanggalYmd]
+      "SELECT COUNT(DISTINCT ip) as total FROM statistik WHERE tanggal = ?",
+      [todaySQL]
     );
 
+    console.log("Hasil query hari ini:", pengunjungHariIniResult);
+
+    // Query 2: Total Hits
     const [totalHitsQuery] = await connection.execute(
       "SELECT SUM(hits) AS total FROM statistik"
     );
 
+    // Query 3: Total Pengunjung (unik berdasarkan IP)
     const [totalPengunjungQuery] = await connection.execute(
-      "SELECT COUNT(hits) AS total FROM statistik"
+      "SELECT COUNT(DISTINCT ip) AS total FROM statistik"
     );
 
+    // Query 4: Pengunjung Bulan Ini
     const [pengunjungBulanQuery] = await connection.execute(
-      "SELECT COUNT(hits) AS total FROM statistik WHERE MONTH(tanggal) = ?",
-      [bulanNow]
+      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?",
+      [`${tahunNow}-${bulanNow}`]
     );
 
+    console.log("Hasil query bulan ini:", pengunjungBulanQuery);
+
+    // Query 5: Pengunjung Tahun Ini
     const [pengunjungTahunIniQuery] = await connection.execute(
-      "SELECT COUNT(ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
+      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
       [tahunNow]
     );
 
+    // Query 6: Pengunjung Tahun Lalu
     const [pengunjungTahunLaluQuery] = await connection.execute(
-      "SELECT COUNT(ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
+      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
       [tahunNow - 1]
     );
 
+    // Query 7: Pengunjung Online (dalam 5 menit terakhir)
     const [onlineQuery] = await connection.execute(
-      "SELECT COUNT(*) AS total FROM statistik WHERE online > ?",
+      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE online > ?",
       [batasWaktu]
     );
 
+    console.log(`Batas waktu online: ${batasWaktu} (${new Date(batasWaktu * 1000).toLocaleString()})`);
+    console.log("Hasil query online:", onlineQuery);
+
     connection.release();
 
-    return Response.json({
-      pengunjungHariIni: pengunjungHariIniResult.length,
-      totalHits: totalHitsQuery[0]?.total ?? 0,
-      totalPengunjung: totalPengunjungQuery[0]?.total ?? 0,
-      pengunjungBulanIni: pengunjungBulanQuery[0]?.total ?? 0,
-      pengunjungTahunIni: pengunjungTahunIniQuery[0]?.total ?? 0,
-      pengunjungTahunLalu: pengunjungTahunLaluQuery[0]?.total ?? 0,
-      pengunjungOnline: onlineQuery[0]?.total ?? 0,
-    });
+    const responseData = {
+      pengunjungHariIni: Number(pengunjungHariIniResult[0]?.total) || 0,
+      totalHits: Number(totalHitsQuery[0]?.total) || 0,
+      totalPengunjung: Number(totalPengunjungQuery[0]?.total) || 0,
+      pengunjungBulanIni: Number(pengunjungBulanQuery[0]?.total) || 0,
+      pengunjungTahunIni: Number(pengunjungTahunIniQuery[0]?.total) || 0,
+      pengunjungTahunLalu: Number(pengunjungTahunLaluQuery[0]?.total) || 0,
+      pengunjungOnline: Number(onlineQuery[0]?.total) || 0,
+    };
+
+    console.log("Response data:", responseData);
+
+    return Response.json(responseData);
   } catch (err) {
     console.error("API statistik error:", err);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
