@@ -57,7 +57,7 @@ export default function Hero() {
             text-3xl sm:text-4xl md:text-5xl
           "
         >
-          Portal BBPOM Palangka Raya
+         BBPOM di Palangka Raya
         </h1>
 
         <p
@@ -67,16 +67,16 @@ export default function Hero() {
             text-base sm:text-lg
           "
         >
-          Selamat Datang di Portal Informasi
+          Selamat Datang di Portal Informasi (Batang Garing)
         </p>
 
         <a
           href="https://palangkaraya.pom.go.id"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-6 px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition text-sm sm:text-base"
+          className="inline-block mt-6 px-6 sm:px-8 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition text-sm sm:text-base"
         >
-          Masuk Subsite <br />
+           Subsite <br />
           Balai Besar POM di Palangka Raya
         </a>
       </div>

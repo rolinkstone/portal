@@ -66,7 +66,7 @@ export default function Navbar() {
               <Link href="#aplikasi-pusat" className="block px-4 py-2 hover:bg-gray-100">
                 Aplikasi Pusat
               </Link>
-              <Link href="#aplikasi-balai" className="block px-4 py-2 hover:bg-gray-100">
+              <Link href="/aplikasi/balai" className="block px-4 py-2 hover:bg-gray-100">
                 Aplikasi Balai
               </Link>
             </div>
@@ -113,7 +113,7 @@ export default function Navbar() {
               <a href="#aplikasi-pusat" className="block px-4 py-2 hover:bg-gray-100">
                 Aplikasi Pusat
               </a>
-              <a href="#aplikasi-balai" className="block px-4 py-2 hover:bg-gray-100">
+              <a href="/aplikasi/balai" className="block px-4 py-2 hover:bg-gray-100">
                 Aplikasi Balai
               </a>
             </div>
