@@ -15,6 +15,14 @@ export default function AplikasiBalai() {
       logo: "/Aplikasi/talawang.png",
       link: "https://talawang.bbpompky.id"
     },
+    {
+      id: 2,
+      nama: "CLOUD STORAGE",
+      deskripsi: "Platform Manajemen Dokumen Digital",
+      kategori: "Layanan",
+      logo: "/Aplikasi/cloud.png",
+      link: "https://drive.bbpompky.id"
+    },
    
   ]);
 
