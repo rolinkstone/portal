@@ -10,7 +10,12 @@ export default function Hero() {
       subtitle: "Selamat Datang di Portal Informasi (Batang Garing)",
     },
     {
-      image: "/Hero/bg1.png", // tambahkan gambar lain
+      image: "/Hero/bg1.jpeg", // tambahkan gambar lain
+      title: "Inovasi Pelayanan Publik",
+       subtitle: "Transformasi Digital untuk Layanan yang Lebih Baik",
+    },
+    {
+      image: "/Hero/bg1.jpeg", // tambahkan gambar lain
       title: "Inovasi Pelayanan Publik",
        subtitle: "Transformasi Digital untuk Layanan yang Lebih Baik",
     },
