@@ -5,43 +5,42 @@ import Navbar from "../../Navbar";
 import { menuItems } from "./content/menuItems";
 import { profileContent } from "./content/profile";
 import ProfileContent from "./components/ProfileContent";
+import { prestasiContent } from "./content/prestasi";
+import PrestasiContent from "./components/PrestasiContent";
 
 export default function ManajemenSdm() {
   const [activeMenu, setActiveMenu] = useState("profile");
 
   const contentMap = {
-    profile: profileContent
+    profile: profileContent,
+    prestasi: prestasiContent
   };
 
   const currentContent = contentMap[activeMenu];
 
-  // Data pegawai lengkap
-  const employees = [
-    // ... semua data pegawai dari yang Anda berikan
-    { id: 1, nip: "199205222025211023", name: "Fauzan Abdullah, S.Kom", gender: "L", pangkat: "IX", tipe: "Pelaksana", jabatan: "Penata Layanan Operasional" },
-    { id: 2, nip: "198106112006042004", name: "Nurfadilla, S.Si, Apt", gender: "P", pangkat: "IV/a", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Madya" },
-    { id: 3, nip: "198907032015022003", name: "Nila Murdiana, S.Si.", gender: "P", pangkat: "III/c", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Muda" },
-    { id: 4, nip: "198507272009122001", name: "Wihelminae, S.Farm, Apt", gender: "P", pangkat: "IV/a", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Muda" },
-    { id: 5, nip: "196905012000031001", name: "I Dewa Made Hari Buana, S.Si, Apt", gender: "L", pangkat: "IV/b", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Madya" },
-    { id: 6, nip: "198005292006042004", name: "Etik Sumardani, S.Farm, Apt", gender: "P", pangkat: "IV/a", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Madya" },
-    { id: 7, nip: "198309072008121001", name: "Bayu Indra Permana, S.Farm, Apt", gender: "L", pangkat: "IV/a", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Madya" },
-    { id: 8, nip: "196901301992032001", name: "Tri Wahyuningsih, S.H.", gender: "P", pangkat: "III/d", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Penyelia" },
-    { id: 9, nip: "197210171994032001", name: "Ita Mentayani, S.H.", gender: "P", pangkat: "III/d", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Muda" },
-    { id: 10, nip: "199501282019032006", name: "Sri Nola Vebiola, S.Si", gender: "P", pangkat: "III/b", tipe: "Fungsional", jabatan: "Pengawas Farmasi dan Makanan Ahli Pertama" },
-    // ... lanjutkan hingga id 69
-  ];
+  // Handle menu click
+  const handleMenuClick = (item) => {
+    if (item.type === "external" && item.link) {
+      // Buka link eksternal di tab baru
+      window.open(item.link, "_blank", "noopener,noreferrer");
+    } else {
+      // Internal menu
+      setActiveMenu(item.id);
+    }
+  };
 
   // Fungsi render konten dinamis
   const renderContent = () => {
     switch (activeMenu) {
       case "profile":
-        return <ProfileContent content={currentContent} employees={employees} />;
-      
+        return <ProfileContent content={currentContent} />;
+      case "prestasi":
+        return <PrestasiContent content={currentContent} />;
       default:
         return (
           <div className="space-y-8">
             {/* Hero Stats Section */}
-            {currentContent.heroStats && (
+            {currentContent?.heroStats && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {currentContent.heroStats.map((stat, index) => (
                   <div key={index} className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 text-white shadow-lg`}>
@@ -66,7 +65,7 @@ export default function ManajemenSdm() {
             )}
 
             {/* Main Content Sections */}
-            {currentContent.sections && currentContent.sections.map((section, index) => (
+            {currentContent?.sections && currentContent.sections.map((section, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
                 {section.title && (
                   <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
@@ -210,23 +209,35 @@ export default function ManajemenSdm() {
                   {menuItems.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => setActiveMenu(item.id)}
+                      onClick={() => handleMenuClick(item)}
                       className={`w-full text-left flex items-center p-4 rounded-xl mb-2 transition-all duration-200 ${
                         activeMenu === item.id
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
                           : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                      }`}
+                      } ${item.type === "external" ? "cursor-pointer" : ""}`}
                     >
                       <span className="text-xl mr-3">{item.icon}</span>
                       <span className="font-medium">{item.title}</span>
-                      {activeMenu === item.id && (
+                      
+                      {/* Indicator untuk menu aktif */}
+                      {activeMenu === item.id && item.type === "internal" && (
                         <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      )}
+                      
+                      {/* Indicator untuk external link */}
+                      {item.type === "external" && (
+                        <svg className="w-4 h-4 ml-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       )}
                     </button>
                   ))}
                 </div>
+                
+                {/* Info External Link */}
+                
               </div>
             </div>
 
@@ -236,12 +247,14 @@ export default function ManajemenSdm() {
                 {/* CONTENT HEADER */}
                 <div className="p-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
                   <div className="flex items-center">
-                    <span className="text-3xl mr-4">{currentContent.icon}</span>
+                    <span className="text-3xl mr-4">{currentContent?.icon || "📋"}</span>
                     <div>
                       <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
-                        {currentContent.title}
+                        {currentContent?.title || "Manajemen SDM"}
                       </h2>
-                      <p className="text-gray-600 mt-2">{currentContent.description}</p>
+                      <p className="text-gray-600 mt-2">
+                        {currentContent?.description || "Pengelolaan data sumber daya manusia"}
+                      </p>
                     </div>
                   </div>
                 </div>

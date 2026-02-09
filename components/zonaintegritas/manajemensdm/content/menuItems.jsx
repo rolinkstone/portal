@@ -1,7 +1,23 @@
+// components/zonaintegritas/manajemensdm/content/menuItems.jsx
+
 export const menuItems = [
   {
     id: "profile",
     title: "Profile Pegawai",
-    icon: "👥" // atau "🏆" untuk sertifikasi/prestasi
+    icon: "👥",
+    type: "internal"
+  },
+  {
+    id: "prestasi",
+    title: "Pegawai Berprestasi",
+    icon: "🏆",
+    type: "internal"
+  },
+  {
+    id: "kompetensi",
+    title: "Pengembangan Kompetensi",
+    icon: "📚",
+    type: "external",
+    link: "https://sites.google.com/view/d-peg"
   }
 ];

@@ -110,17 +110,17 @@ export default function Navbar() {
     },
     { 
       name: "Akuntabilitas & Kinerja", 
-      href: "/zona-integritas/akuntabilitas",
+      href: "/zonaintegritas/akuntabilitas",
       icon: "📊"
     },
     { 
       name: "Pengawasan", 
-      href: "/zona-integritas/pengawasan",
+      href: "/zonaintegritas/pengawasan",
       icon: "🔍"
     },
     { 
       name: "Pelayanan Publik", 
-      href: "/zona-integritas/pelayanan-publik",
+      href: "/zonaintegritas/pelayanan",
       icon: "🤝"
     }
   ];

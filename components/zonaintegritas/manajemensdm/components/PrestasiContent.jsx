@@ -1,17 +1,13 @@
-// components/zonaintegritas/manajemensdm/components/ProfileContent.jsx
+// components/zonaintegritas/manajemensdm/components/PrestasiContent.jsx
 import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  employees, 
-  calculateStats, 
-  profileContent 
-} from '../content/profile';
+import { achievements, prestasiContent, calculateAchievementStats } from '../content/prestasi';
 
-const ProfileContent = ({ content }) => {
+const PrestasiContent = ({ content }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({
-    key: 'id', // default sort by ID
-    direction: 'ascending'
+    key: 'tahun',
+    direction: 'descending' // default sort by tahun descending (terbaru)
   });
   const itemsPerPage = 10;
 
@@ -20,83 +16,72 @@ const ProfileContent = ({ content }) => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Memuat data SDM...</p>
+          <p className="text-gray-500">Memuat data prestasi...</p>
         </div>
       </div>
     );
   }
 
   // Fungsi untuk sorting
-  const sortEmployees = (employeesArray) => {
-    const sortedArray = [...employeesArray];
+  const sortAchievements = (achievementsArray) => {
+    const sortedArray = [...achievementsArray];
     
     sortedArray.sort((a, b) => {
-      if (sortConfig.key === 'nip') {
-        // Sort by NIP (treat as string for sorting)
-        const nipA = a.nip.toLowerCase();
-        const nipB = b.nip.toLowerCase();
-        if (nipA < nipB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (nipA > nipB) return sortConfig.direction === 'ascending' ? 1 : -1;
+      if (sortConfig.key === 'tahun') {
+        // Sort by tahun (descending by default)
+        if (a.tahun < b.tahun) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (a.tahun > b.tahun) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
-      } else if (sortConfig.key === 'name') {
+      } else if (sortConfig.key === 'nama') {
         // Sort by name
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
         if (nameA < nameB) return sortConfig.direction === 'ascending' ? -1 : 1;
         if (nameA > nameB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
-      } else if (sortConfig.key === 'pangkat') {
-        // Sort by pangkat
-        const pangkatA = a.pangkat.toLowerCase();
-        const pangkatB = b.pangkat.toLowerCase();
-        if (pangkatA < pangkatB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (pangkatA > pangkatB) return sortConfig.direction === 'ascending' ? 1 : -1;
+      } else if (sortConfig.key === 'tingkat') {
+        // Sort by tingkat (Internasional > Nasional > Regional)
+        const tingkatOrder = { 'Internasional': 3, 'Nasional': 2, 'Regional': 1 };
+        const orderA = tingkatOrder[a.tingkat] || 0;
+        const orderB = tingkatOrder[b.tingkat] || 0;
+        if (orderA < orderB) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (orderA > orderB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
-      } else if (sortConfig.key === 'tipe') {
-        // Sort by tipe
-        const tipeA = a.tipe.toLowerCase();
-        const tipeB = b.tipe.toLowerCase();
-        if (tipeA < tipeB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (tipeA > tipeB) return sortConfig.direction === 'ascending' ? 1 : -1;
-        return 0;
-      } else if (sortConfig.key === 'jabatan') {
-        // Sort by jabatan
-        const jabatanA = a.jabatan.toLowerCase();
-        const jabatanB = b.jabatan.toLowerCase();
-        if (jabatanA < jabatanB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (jabatanA > jabatanB) return sortConfig.direction === 'ascending' ? 1 : -1;
-        return 0;
-      } else {
-        // Default sort by ID
-        if (a.id < b.id) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (a.id > b.id) return sortConfig.direction === 'ascending' ? 1 : -1;
+      } else if (sortConfig.key === 'kategori') {
+        // Sort by kategori
+        const kategoriA = a.kategori.toLowerCase();
+        const kategoriB = b.kategori.toLowerCase();
+        if (kategoriA < kategoriB) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (kategoriA > kategoriB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
       }
+      return 0;
     });
     
     return sortedArray;
   };
 
-  // Filter employees berdasarkan search query
-  const filteredEmployees = useMemo(() => {
-    let result = employees;
+  // Filter achievements berdasarkan search query
+  const filteredAchievements = useMemo(() => {
+    let result = achievements;
     
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      result = result.filter(employee => {
+      result = result.filter(achievement => {
         return (
-          employee.name.toLowerCase().includes(query) ||
-          employee.nip.includes(query) ||
-          employee.jabatan.toLowerCase().includes(query) ||
-          employee.pangkat.toLowerCase().includes(query) ||
-          employee.tipe.toLowerCase().includes(query)
+          achievement.name.toLowerCase().includes(query) ||
+          achievement.nip.includes(query) ||
+          achievement.prestasi.toLowerCase().includes(query) ||
+          achievement.jabatan.toLowerCase().includes(query) ||
+          achievement.kategori.toLowerCase().includes(query) ||
+          achievement.tingkat.toLowerCase().includes(query)
         );
       });
     }
     
     // Apply sorting
-    return sortEmployees(result);
+    return sortAchievements(result);
   }, [searchQuery, sortConfig]);
 
   // Reset ke halaman 1 ketika search berubah
@@ -105,25 +90,25 @@ const ProfileContent = ({ content }) => {
   }, [searchQuery, sortConfig]);
 
   // Fungsi pagination
-  const getEmployeesByPage = (page = 1, itemsPerPage = 10, employeeArray = employees) => {
+  const getAchievementsByPage = (page = 1, itemsPerPage = 10, achievementsArray = achievements) => {
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return {
-      data: employeeArray.slice(startIndex, endIndex),
+      data: achievementsArray.slice(startIndex, endIndex),
       currentPage: page,
-      totalPages: Math.ceil(employeeArray.length / itemsPerPage),
-      totalItems: employeeArray.length,
+      totalPages: Math.ceil(achievementsArray.length / itemsPerPage),
+      totalItems: achievementsArray.length,
       itemsPerPage
     };
   };
 
-  // Data pagination untuk filtered employees
-  const paginationData = getEmployeesByPage(currentPage, itemsPerPage, filteredEmployees);
-  const { data: displayedEmployees, totalPages, totalItems } = paginationData;
+  // Data pagination untuk filtered achievements
+  const paginationData = getAchievementsByPage(currentPage, itemsPerPage, filteredAchievements);
+  const { data: displayedAchievements, totalPages, totalItems } = paginationData;
   
   // Data statistik dinamis
-  const stats = calculateStats();
-  const heroStats = profileContent.heroStats();
+  const stats = calculateAchievementStats();
+  const heroStats = prestasiContent.heroStats();
 
   // Fungsi untuk handle sorting
   const handleSort = (key) => {
@@ -186,14 +171,6 @@ const ProfileContent = ({ content }) => {
     setSearchQuery('');
   };
 
-  // Highlight text untuk search results
-  const highlightMatch = (text, search) => {
-    if (!search.trim()) return text;
-    
-    const regex = new RegExp(`(${search})`, 'gi');
-    return text.replace(regex, '<span class="bg-yellow-200 font-semibold">$1</span>');
-  };
-
   return (
     <div className="space-y-6">
       {/* Statistik Overview */}
@@ -212,16 +189,16 @@ const ProfileContent = ({ content }) => {
         ))}
       </div>
 
-      {/* Tabel Data Pegawai */}
+      {/* Tabel Data Prestasi */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
         {/* Header Tabel dengan Search */}
-        <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+        <div className="p-5 bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center">
-              <span className="text-xl mr-3">👥</span>
+              <span className="text-xl mr-3">🏆</span>
               <div>
-                <h3 className="text-lg font-bold text-gray-800">Daftar Pegawai</h3>
-                <p className="text-sm text-gray-600">Balai Besar POM di Palangka Raya</p>
+                <h3 className="text-lg font-bold text-gray-800">Daftar Prestasi Pegawai</h3>
+                <p className="text-sm text-gray-600">Rekap pencapaian dan penghargaan</p>
               </div>
             </div>
             
@@ -236,8 +213,8 @@ const ProfileContent = ({ content }) => {
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Cari nama, NIP, atau jabatan..."
-                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  placeholder="Cari nama, prestasi, atau kategori..."
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none"
                 />
                 {searchQuery && (
                   <button
@@ -255,11 +232,11 @@ const ProfileContent = ({ content }) => {
               {searchQuery && (
                 <div className="mt-2 flex items-center justify-between">
                   <p className="text-sm text-gray-600">
-                    Ditemukan <span className="font-semibold text-blue-600">{filteredEmployees.length}</span> hasil untuk "<span className="font-medium">{searchQuery}"</span>
+                    Ditemukan <span className="font-semibold text-yellow-600">{filteredAchievements.length}</span> hasil untuk "<span className="font-medium">{searchQuery}"</span>
                   </p>
                   <button
                     onClick={clearSearch}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="text-sm text-yellow-600 hover:text-yellow-800"
                   >
                     Hapus pencarian
                   </button>
@@ -277,147 +254,117 @@ const ProfileContent = ({ content }) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   NO
                 </th>
-                <th 
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('nip')}
-                >
-                  <div className="flex items-center">
-                    NIP
-                    {getSortIcon('nip')}
-                  </div>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  NIP
                 </th>
                 <th 
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('name')}
+                  onClick={() => handleSort('nama')}
                 >
                   <div className="flex items-center">
-                    NAMA
-                    {getSortIcon('name')}
+                    NAMA PEGAWAI
+                    {getSortIcon('nama')}
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  L/P
+                  PRESTASI
                 </th>
                 <th 
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('pangkat')}
+                  onClick={() => handleSort('tingkat')}
                 >
                   <div className="flex items-center">
-                    PANGKAT
-                    {getSortIcon('pangkat')}
-                </div>
-                </th>
-                <th 
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('tipe')}
-                >
-                  <div className="flex items-center">
-                    TIPE
-                    {getSortIcon('tipe')}
+                    TINGKAT
+                    {getSortIcon('tingkat')}
                   </div>
                 </th>
                 <th 
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('jabatan')}
+                  onClick={() => handleSort('tahun')}
                 >
                   <div className="flex items-center">
-                    JABATAN
-                    {getSortIcon('jabatan')}
+                    TAHUN
+                    {getSortIcon('tahun')}
+                  </div>
+                </th>
+                <th 
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('kategori')}
+                >
+                  <div className="flex items-center">
+                    KATEGORI
+                    {getSortIcon('kategori')}
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {displayedEmployees.length > 0 ? (
-                displayedEmployees.map((employee, index) => {
+              {displayedAchievements.length > 0 ? (
+                displayedAchievements.map((achievement, index) => {
                   // Hitung nomor urut berdasarkan halaman
                   const displayNumber = (currentPage - 1) * itemsPerPage + index + 1;
                   
                   return (
-                    <tr key={employee.id} className="hover:bg-gray-50">
+                    <tr key={achievement.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-medium text-gray-900">
                         {displayNumber}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-mono">
-                        {searchQuery && employee.nip.includes(searchQuery) ? (
-                          <span dangerouslySetInnerHTML={{ 
-                            __html: highlightMatch(employee.nip, searchQuery) 
-                          }} />
-                        ) : (
-                          employee.nip
-                        )}
+                        {achievement.nip}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900">
-                          {searchQuery && employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ? (
-                            <span dangerouslySetInnerHTML={{ 
-                              __html: highlightMatch(employee.name, searchQuery) 
-                            }} />
-                          ) : (
-                            employee.name
-                          )}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{achievement.name}</div>
+                        <div className="text-xs text-gray-500 mt-1">{achievement.jabatan}</div>
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                          employee.gender === 'L' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-pink-100 text-pink-800'
-                        }`}>
-                          {employee.gender}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {searchQuery && employee.pangkat.toLowerCase().includes(searchQuery.toLowerCase()) ? (
-                          <span dangerouslySetInnerHTML={{ 
-                            __html: highlightMatch(employee.pangkat, searchQuery) 
-                          }} />
-                        ) : (
-                          employee.pangkat
-                        )}
+                      <td className="px-4 py-3">
+                        <div className="text-sm font-medium text-gray-900">{achievement.prestasi}</div>
+                        <div className="text-xs text-gray-500 mt-1">{achievement.penyelenggara}</div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          employee.tipe === 'Fungsional' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
+                          achievement.tingkat === 'Internasional' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : achievement.tingkat === 'Nasional'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
                         }`}>
-                          {searchQuery && employee.tipe.toLowerCase().includes(searchQuery.toLowerCase()) ? (
-                            <span dangerouslySetInnerHTML={{ 
-                              __html: highlightMatch(employee.tipe, searchQuery) 
-                            }} />
-                          ) : (
-                            employee.tipe
-                          )}
+                          {achievement.tingkat}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">
-                        {searchQuery && employee.jabatan.toLowerCase().includes(searchQuery.toLowerCase()) ? (
-                          <span dangerouslySetInnerHTML={{ 
-                            __html: highlightMatch(employee.jabatan, searchQuery) 
-                          }} />
-                        ) : (
-                          employee.jabatan
-                        )}
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {achievement.tahun}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          achievement.kategori === 'Penghargaan'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : achievement.kategori === 'Sertifikasi'
+                            ? 'bg-blue-100 text-blue-800'
+                            : achievement.kategori === 'Publikasi'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {achievement.kategori}
+                        </span>
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-4 py-8 text-center">
+                  <td colSpan="7" className="px-4 py-12 text-center">
                     <div className="text-gray-400">
-                      <svg className="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p className="font-medium text-gray-600 mb-1">Data tidak ditemukan</p>
+                      <div className="text-4xl mb-4">📊</div>
+                      <p className="font-medium text-gray-600 mb-1">Belum ada data prestasi</p>
                       <p className="text-sm text-gray-500">
-                        {searchQuery ? `Tidak ada hasil untuk "${searchQuery}"` : "Tidak ada data pegawai"}
+                        {searchQuery 
+                          ? `Tidak ada hasil untuk "${searchQuery}"`
+                          : "Data prestasi pegawai akan ditambahkan kemudian"}
                       </p>
                       {searchQuery && (
                         <button
                           onClick={clearSearch}
-                          className="mt-3 text-sm text-blue-600 hover:text-blue-800"
+                          className="mt-3 text-sm text-yellow-600 hover:text-yellow-800"
                         >
                           Tampilkan semua data
                         </button>
@@ -431,18 +378,13 @@ const ProfileContent = ({ content }) => {
         </div>
 
         {/* Pagination - hanya tampil jika ada data */}
-        {displayedEmployees.length > 0 && totalPages > 0 && (
+        {displayedAchievements.length > 0 && totalPages > 0 && (
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-600">
                 Menampilkan <span className="font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-semibold">
-                  {Math.min(currentPage * itemsPerPage, filteredEmployees.length)}
-                </span> dari <span className="font-semibold">{filteredEmployees.length}</span> pegawai
-                {searchQuery && (
-                  <span className="ml-2 text-blue-600">
-                    (Diurutkan berdasarkan {sortConfig.key === 'nip' ? 'NIP' : sortConfig.key} {sortConfig.direction === 'ascending' ? '↑' : '↓'})
-                  </span>
-                )}
+                  {Math.min(currentPage * itemsPerPage, filteredAchievements.length)}
+                </span> dari <span className="font-semibold">{filteredAchievements.length}</span> prestasi
               </div>
               
               <div className="flex items-center space-x-2">
@@ -474,7 +416,7 @@ const ProfileContent = ({ content }) => {
                         onClick={() => handlePageClick(pageNumber)}
                         className={`w-8 h-8 text-sm rounded-md flex items-center justify-center ${
                           isCurrent
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-yellow-600 text-white'
                             : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-100'
                         }`}
                       >
@@ -491,7 +433,7 @@ const ProfileContent = ({ content }) => {
                         onClick={() => handlePageClick(totalPages)}
                         className={`w-8 h-8 text-sm rounded-md flex items-center justify-center ${
                           totalPages === currentPage
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-yellow-600 text-white'
                             : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-100'
                         }`}
                       >
@@ -522,12 +464,6 @@ const ProfileContent = ({ content }) => {
             {/* Page Info */}
             <div className="mt-2 text-center text-xs text-gray-500">
               Halaman <span className="font-semibold">{currentPage}</span> dari <span className="font-semibold">{totalPages}</span>
-              {sortConfig.key !== 'id' && (
-                <span className="ml-2 text-blue-600">
-                  • Diurutkan berdasarkan {sortConfig.key === 'nip' ? 'NIP' : sortConfig.key} 
-                  ({sortConfig.direction === 'ascending' ? 'A-Z' : 'Z-A'})
-                </span>
-              )}
             </div>
           </div>
         )}
@@ -536,4 +472,4 @@ const ProfileContent = ({ content }) => {
   );
 };
 
-export default ProfileContent;
+export default PrestasiContent;
