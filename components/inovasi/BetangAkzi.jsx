@@ -31,7 +31,7 @@ export default function BetangAkziPage() {
             {/* HERO IMAGE */}
             <div className="relative h-96 w-full">
               <Image
-                src="/Inovasi/betang-akzi.jpg"
+                src="/Inovasi/Betang-Akzi.jpg"
                 alt="Betang AKZI - Pelatihan Penjamah Makanan SPPG"
                 fill
                 className="object-cover"
