@@ -23,7 +23,14 @@ export default function AplikasiBalai() {
       logo: "/Aplikasi/cloud.png",
       link: "https://drive.bbpompky.id"
     },
-   
+    {
+      id: 3,
+      nama: "GROW",
+      deskripsi: "Platform E-Learning",
+      kategori: "Pelatihan",
+      logo: "/Aplikasi/grow.png",
+      link: "https://grow.bbpompky.id"
+    },
   ]);
 
   // State untuk kategori filter
