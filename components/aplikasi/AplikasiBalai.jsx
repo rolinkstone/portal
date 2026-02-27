@@ -31,6 +31,14 @@ export default function AplikasiBalai() {
       logo: "/Aplikasi/grow.png",
       link: "https://grow.bbpompky.id"
     },
+    {
+      id: 4,
+      nama: "TAMBUN RAYA",
+      deskripsi: "Pemetaan Kompetensi",
+      kategori: "Kepegawaian",
+      logo: "/Aplikasi/tr.png",
+      link: "https://tambun-raya.bbpompky.id"
+    },
   ]);
 
   // State untuk kategori filter
