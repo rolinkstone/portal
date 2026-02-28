@@ -1,44 +1,74 @@
+// app/api/statistik/hit/route.js
 import pool from "@/lib/db";
 
 export async function POST(request) {
+  let connection;
   try {
-    const { ip, userAgent, referer } = await request.json();
+    const body = await request.json();
+    const { ip, userAgent, referer, sessionId } = body;
     
-    const connection = await pool.getConnection();
-    const now = new Date();
-    const today = now.toISOString().slice(0, 10); // YYYY-MM-DD
-    const timestamp = Math.floor(Date.now() / 1000);
+    console.log('📝 Hit request:', { ip, sessionId });
 
-    // Cek apakah IP sudah ada hari ini
-    const [existing] = await connection.execute(
-      "SELECT hits FROM statistik WHERE ip = ? AND tanggal = ?",
-      [ip, today]
-    );
-
-    if (existing.length > 0) {
-      // Update hits dan timestamp online
-      await connection.execute(
-        "UPDATE statistik SET hits = hits + 1, online = ? WHERE ip = ? AND tanggal = ?",
-        [timestamp, ip, today]
-      );
-    } else {
-      // Insert baru
-      await connection.execute(
-        "INSERT INTO statistik (ip, tanggal, hits, online) VALUES (?, ?, 1, ?)",
-        [ip, today, timestamp]
-      );
+    if (!ip || ip === 'unknown' || !sessionId) {
+      return Response.json({ 
+        success: false, 
+        message: "Data tidak lengkap" 
+      });
     }
 
-    connection.release();
+    connection = await pool.getConnection();
+    
+    const now = new Date();
+    const today = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+    const timestamp = Math.floor(Date.now() / 1000);
 
-    return Response.json({ success: true, message: "Statistik tercatat" });
+    // Cek apakah kombinasi IP + session sudah ada hari ini
+    const [existing] = await connection.execute(
+      "SELECT * FROM statistik WHERE ip = ? AND session_id = ? AND tanggal = ?",
+      [ip, sessionId, today]
+    );
+
+    let isNewVisitor = false;
+
+    if (existing.length === 0) {
+      // BELUM PERNAH KUNJUNG HARI INI
+      isNewVisitor = true;
+      
+      await connection.execute(`
+        INSERT INTO statistik (ip, session_id, tanggal, hits, online) 
+        VALUES (?, ?, ?, 1, ?)
+      `, [ip, sessionId, today, timestamp]);
+      
+      console.log('✅ Pengunjung BARU:', { ip, sessionId });
+      
+    } else {
+      // SUDAH PERNAH KUNJUNG - update hits
+      await connection.execute(`
+        UPDATE statistik 
+        SET hits = hits + 1, online = ? 
+        WHERE ip = ? AND session_id = ? AND tanggal = ?
+      `, [timestamp, ip, sessionId, today]);
+      
+      console.log('🔄 Kunjungan ulang:', { ip, sessionId });
+    }
+
+    return Response.json({ 
+      success: true, 
+      isNewVisitor,
+      message: isNewVisitor ? "Pengunjung baru tercatat" : "Kunjungan tercatat"
+    });
+    
   } catch (err) {
-    console.error("Error recording hit:", err);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("❌ Error:", err);
+    return Response.json({ 
+      success: false, 
+      error: err.message 
+    }, { status: 500 });
+  } finally {
+    if (connection) connection.release();
   }
 }
 
-// Juga tambahkan GET untuk testing
 export async function GET() {
-  return Response.json({ message: "Use POST to record a visit" });
+  return Response.json({ message: "Gunakan POST" });
 }

@@ -1,81 +1,104 @@
+// app/api/statistik/route.js
 import pool from "@/lib/db";
 
 export async function GET() {
+  let connection;
+  
   try {
-    const connection = await pool.getConnection();
-
+    connection = await pool.getConnection();
+    
     const now = new Date();
-    const todaySQL = now.toISOString().slice(0, 10); // Format YYYY-MM-DD
-    const bulanNow = String(now.getMonth() + 1).padStart(2, "0");
+    const todaySQL = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
     const tahunNow = now.getFullYear();
-    const batasWaktu = Math.floor(Date.now() / 1000) - 300; // 5 menit yang lalu
+    const bulanNow = String(now.getMonth() + 1).padStart(2, "0");
+    const tanggalHariIni = String(now.getDate()).padStart(2, "0");
+    
+    const startOfYear = `${tahunNow}-01-01`;
+    const endOfToday = todaySQL;
+    const tahunLalu = tahunNow - 1;
+    const startOfLastYear = `${tahunLalu}-01-01`;
+    const endOfLastYearSameDay = `${tahunLalu}-${bulanNow}-${tanggalHariIni}`;
+    
+    const batasWaktu = Math.floor(Date.now() / 1000) - 300; // 5 menit
 
-    console.log(`Query untuk tanggal: ${todaySQL}, bulan: ${bulanNow}, tahun: ${tahunNow}`);
+    // 🔥 HITUNG ONLINE BERDASARKAN UNIQUE ID (SEMUA BARIS)
+    const [onlineQuery] = await connection.execute(`
+      SELECT COUNT(*) as total 
+      FROM statistik 
+      WHERE online > ? AND tanggal = ?
+    `, [batasWaktu, todaySQL]);
 
-    // Query 1: Pengunjung Hari Ini
-    const [pengunjungHariIniResult] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) as total FROM statistik WHERE tanggal = ?",
-      [todaySQL]
-    );
+    // Pengunjung hari ini (unique)
+    const [pengunjungHariIniResult] = await connection.execute(`
+      SELECT COUNT(*) as total 
+      FROM statistik 
+      WHERE tanggal = ?
+    `, [todaySQL]);
 
-    console.log("Hasil query hari ini:", pengunjungHariIniResult);
-
-    // Query 2: Total Hits
+    // Total hits
     const [totalHitsQuery] = await connection.execute(
-      "SELECT SUM(hits) AS total FROM statistik"
+      "SELECT COALESCE(SUM(hits), 0) AS total FROM statistik"
     );
 
-    // Query 3: Total Pengunjung (unik berdasarkan IP)
+    // Total pengunjung unique sepanjang masa
     const [totalPengunjungQuery] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) AS total FROM statistik"
+      "SELECT COUNT(*) AS total FROM statistik"
     );
 
-    // Query 4: Pengunjung Bulan Ini
+    // Bulan ini
     const [pengunjungBulanQuery] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?",
+      "SELECT COUNT(*) AS total FROM statistik WHERE DATE_FORMAT(tanggal, '%Y-%m') = ?", 
       [`${tahunNow}-${bulanNow}`]
     );
 
-    console.log("Hasil query bulan ini:", pengunjungBulanQuery);
-
-    // Query 5: Pengunjung Tahun Ini
+    // Tahun ini
     const [pengunjungTahunIniQuery] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
-      [tahunNow]
+      "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
+      [startOfYear, endOfToday]
     );
 
-    // Query 6: Pengunjung Tahun Lalu
+    // Tahun lalu
     const [pengunjungTahunLaluQuery] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE YEAR(tanggal) = ?",
-      [tahunNow - 1]
+      "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
+      [startOfLastYear, endOfLastYearSameDay]
     );
 
-    // Query 7: Pengunjung Online (dalam 5 menit terakhir)
-    const [onlineQuery] = await connection.execute(
-      "SELECT COUNT(DISTINCT ip) AS total FROM statistik WHERE online > ?",
-      [batasWaktu]
-    );
+    const tahunIni = Number(pengunjungTahunIniQuery[0]?.total) || 0;
+    const tahunLaluPeriod = Number(pengunjungTahunLaluQuery[0]?.total) || 0;
+    
+    let pertumbuhanYoY = 0;
+    if (tahunLaluPeriod > 0) {
+      pertumbuhanYoY = ((tahunIni - tahunLaluPeriod) / tahunLaluPeriod * 100);
+    }
 
-    console.log(`Batas waktu online: ${batasWaktu} (${new Date(batasWaktu * 1000).toLocaleString()})`);
-    console.log("Hasil query online:", onlineQuery);
-
-    connection.release();
-
-    const responseData = {
+    const data = {
       pengunjungHariIni: Number(pengunjungHariIniResult[0]?.total) || 0,
       totalHits: Number(totalHitsQuery[0]?.total) || 0,
       totalPengunjung: Number(totalPengunjungQuery[0]?.total) || 0,
       pengunjungBulanIni: Number(pengunjungBulanQuery[0]?.total) || 0,
-      pengunjungTahunIni: Number(pengunjungTahunIniQuery[0]?.total) || 0,
-      pengunjungTahunLalu: Number(pengunjungTahunLaluQuery[0]?.total) || 0,
+      pengunjungTahunIni: tahunIni,
+      pengunjungTahunLalu: tahunLaluPeriod,
+      pertumbuhanYoY: pertumbuhanYoY,
       pengunjungOnline: Number(onlineQuery[0]?.total) || 0,
     };
 
-    console.log("Response data:", responseData);
-
-    return Response.json(responseData);
+    console.log("📊 Data statistik:", data);
+    return Response.json(data);
+    
   } catch (err) {
-    console.error("API statistik error:", err);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("❌ API statistik error:", err);
+    return Response.json({
+      totalPengunjung: 0,
+      pengunjungHariIni: 0,
+      pengunjungOnline: 0,
+      totalHits: 0,
+      pengunjungBulanIni: 0,
+      pengunjungTahunIni: 0,
+      pengunjungTahunLalu: 0,
+      pertumbuhanYoY: 0,
+    }, { status: 500 });
+    
+  } finally {
+    if (connection) connection.release();
   }
 }
