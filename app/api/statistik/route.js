@@ -57,19 +57,40 @@ export async function GET() {
       [startOfYear, endOfToday]
     );
 
-    // Tahun lalu
-    const [pengunjungTahunLaluQuery] = await connection.execute(
+    // Tahun lalu (full year data)
+    const [pengunjungTahunLaluFullQuery] = await connection.execute(
+      "SELECT COUNT(*) AS total FROM statistik WHERE YEAR(tanggal) = ?", 
+      [tahunLalu]
+    );
+
+    // Tahun lalu (periode sama dengan tahun ini)
+    const [pengunjungTahunLaluPeriodeQuery] = await connection.execute(
       "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
       [startOfLastYear, endOfLastYearSameDay]
     );
 
+    // Data per bulan untuk tahun lalu (opsional)
+    const [pengunjungPerBulanTahunLalu] = await connection.execute(`
+      SELECT 
+        MONTH(tanggal) as bulan,
+        COUNT(*) as total
+      FROM statistik 
+      WHERE YEAR(tanggal) = ?
+      GROUP BY MONTH(tanggal)
+      ORDER BY bulan ASC
+    `, [tahunLalu]);
+
     const tahunIni = Number(pengunjungTahunIniQuery[0]?.total) || 0;
-    const tahunLaluPeriod = Number(pengunjungTahunLaluQuery[0]?.total) || 0;
+    const tahunLaluPeriode = Number(pengunjungTahunLaluPeriodeQuery[0]?.total) || 0;
+    const tahunLaluFull = Number(pengunjungTahunLaluFullQuery[0]?.total) || 0;
     
     let pertumbuhanYoY = 0;
-    if (tahunLaluPeriod > 0) {
-      pertumbuhanYoY = ((tahunIni - tahunLaluPeriod) / tahunLaluPeriod * 100);
+    if (tahunLaluPeriode > 0) {
+      pertumbuhanYoY = ((tahunIni - tahunLaluPeriode) / tahunLaluPeriode * 100);
     }
+
+    // Hitung rata-rata per bulan tahun lalu
+    const rataRataBulananTahunLalu = tahunLaluFull > 0 ? tahunLaluFull / 12 : 0;
 
     const data = {
       pengunjungHariIni: Number(pengunjungHariIniResult[0]?.total) || 0,
@@ -77,9 +98,14 @@ export async function GET() {
       totalPengunjung: Number(totalPengunjungQuery[0]?.total) || 0,
       pengunjungBulanIni: Number(pengunjungBulanQuery[0]?.total) || 0,
       pengunjungTahunIni: tahunIni,
-      pengunjungTahunLalu: tahunLaluPeriod,
+      pengunjungTahunLalu: tahunLaluFull,
+      pengunjungTahunLaluPeriode: tahunLaluPeriode,
       pertumbuhanYoY: pertumbuhanYoY,
       pengunjungOnline: Number(onlineQuery[0]?.total) || 0,
+      rataRataBulananTahunLalu: rataRataBulananTahunLalu,
+      dataPerBulanTahunLalu: pengunjungPerBulanTahunLalu,
+      tahunLalu: tahunLalu,
+      tahunIni: tahunNow,
     };
 
     console.log("📊 Data statistik:", data);
@@ -95,7 +121,12 @@ export async function GET() {
       pengunjungBulanIni: 0,
       pengunjungTahunIni: 0,
       pengunjungTahunLalu: 0,
+      pengunjungTahunLaluPeriode: 0,
       pertumbuhanYoY: 0,
+      rataRataBulananTahunLalu: 0,
+      dataPerBulanTahunLalu: [],
+      tahunLalu: tahunNow - 1,
+      tahunIni: tahunNow,
     }, { status: 500 });
     
   } finally {
