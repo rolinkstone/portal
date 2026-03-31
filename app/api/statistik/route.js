@@ -7,48 +7,44 @@ export async function GET() {
   try {
     connection = await pool.getConnection();
     
-    // Gunakan Intl.DateTimeFormat untuk konsistensi timezone
+    // 🔥 GANTI: Gunakan UTC untuk semua operasi database
     const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Jakarta',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
+    const utcYear = now.getUTCFullYear();
+    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const utcDay = String(now.getUTCDate()).padStart(2, '0');
+    const utcDate = `${utcYear}-${utcMonth}-${utcDay}`;
     
-    const formattedDate = formatter.format(now).split('-');
-    const tahunNow = parseInt(formattedDate[0]);
-    const bulanNow = formattedDate[1];
-    const tanggalHariIni = formattedDate[2];
-    const todaySQL = `${tahunNow}-${bulanNow}-${tanggalHariIni}`;
+    // Untuk tampilan di frontend, baru konversi ke WIB
+    const wibDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+    const wibYear = parseInt(wibDate.split('-')[0]);
+    const wibMonth = wibDate.split('-')[1];
     
-    const startOfYear = `${tahunNow}-01-01`;
-    const endOfToday = todaySQL;
-    const startOfMonth = `${tahunNow}-${bulanNow}-01`;
-    const tahunLalu = tahunNow - 1;
+    console.log('📅 Debug Timezone:');
+    console.log('UTC Date:', utcDate);
+    console.log('WIB Date:', wibDate);
+    
+    const startOfYear = `${utcYear}-01-01`;
+    const endOfToday = utcDate;
+    const startOfMonth = `${utcYear}-${utcMonth}-01`;
+    const tahunLalu = utcYear - 1;
     const startOfLastYear = `${tahunLalu}-01-01`;
-    const endOfLastYearSameDay = `${tahunLalu}-${bulanNow}-${tanggalHariIni}`;
+    const endOfLastYearSameDay = `${tahunLalu}-${utcMonth}-${utcDay}`;
     
     const batasWaktu = Math.floor(Date.now() / 1000) - 300;
-
-    console.log('📅 Debug Info:');
-    console.log('Tanggal sekarang:', todaySQL);
-    console.log('Start of month:', startOfMonth);
-    console.log('End of today:', endOfToday);
 
     // 🔥 ONLINE COUNT
     const [onlineQuery] = await connection.execute(`
       SELECT COUNT(*) as total 
       FROM statistik 
       WHERE online > ? AND tanggal = ?
-    `, [batasWaktu, todaySQL]);
+    `, [batasWaktu, utcDate]);
 
-    // Pengunjung hari ini
+    // Pengunjung hari ini (UTC)
     const [pengunjungHariIniResult] = await connection.execute(`
       SELECT COUNT(*) as total 
       FROM statistik 
       WHERE tanggal = ?
-    `, [todaySQL]);
+    `, [utcDate]);
 
     // Total hits
     const [totalHitsQuery] = await connection.execute(
@@ -60,31 +56,31 @@ export async function GET() {
       "SELECT COUNT(*) AS total FROM statistik"
     );
 
-    // 🔥 PERBAIKI: Bulan ini dengan range tanggal
+    // Bulan ini (UTC)
     const [pengunjungBulanQuery] = await connection.execute(
       "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
       [startOfMonth, endOfToday]
     );
 
-    // Tahun ini
+    // Tahun ini (UTC)
     const [pengunjungTahunIniQuery] = await connection.execute(
       "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
       [startOfYear, endOfToday]
     );
 
-    // Tahun lalu full
+    // Tahun lalu full (UTC)
     const [pengunjungTahunLaluFullQuery] = await connection.execute(
       "SELECT COUNT(*) AS total FROM statistik WHERE YEAR(tanggal) = ?", 
       [tahunLalu]
     );
 
-    // Tahun lalu periode sama
+    // Tahun lalu periode sama (UTC)
     const [pengunjungTahunLaluPeriodeQuery] = await connection.execute(
       "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
       [startOfLastYear, endOfLastYearSameDay]
     );
 
-    // Data per bulan tahun lalu
+    // Data per bulan tahun lalu (UTC)
     const [pengunjungPerBulanTahunLalu] = await connection.execute(`
       SELECT 
         MONTH(tanggal) as bulan,
@@ -107,6 +103,8 @@ export async function GET() {
     const rataRataBulananTahunLalu = tahunLaluFull > 0 ? tahunLaluFull / 12 : 0;
 
     console.log('📊 Query Results:');
+    console.log('Start of month:', startOfMonth);
+    console.log('End of today:', endOfToday);
     console.log('Pengunjung bulan ini:', pengunjungBulanQuery[0]?.total);
     console.log('Pengunjung hari ini:', pengunjungHariIniResult[0]?.total);
     console.log('Total pengunjung:', totalPengunjungQuery[0]?.total);
@@ -124,7 +122,10 @@ export async function GET() {
       rataRataBulananTahunLalu: rataRataBulananTahunLalu,
       dataPerBulanTahunLalu: pengunjungPerBulanTahunLalu,
       tahunLalu: tahunLalu,
-      tahunIni: tahunNow,
+      tahunIni: utcYear,
+      // Tambahkan info timezone untuk debugging
+      serverDate: utcDate,
+      wibDate: wibDate,
     };
 
     console.log("📊 Final data:", data);
@@ -144,8 +145,8 @@ export async function GET() {
       pengunjungOnline: 0,
       rataRataBulananTahunLalu: 0,
       dataPerBulanTahunLalu: [],
-      tahunLalu: new Date().getFullYear() - 1,
-      tahunIni: new Date().getFullYear(),
+      tahunLalu: new Date().getUTCFullYear() - 1,
+      tahunIni: new Date().getUTCFullYear(),
     }, { status: 500 });
     
   } finally {
