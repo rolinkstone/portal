@@ -12,11 +12,11 @@ import {
   ArrowTrendingUpIcon,
   ClockIcon,
   ArrowPathIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
 import StatistikTracker from "@/components/StatistikTracker";
 
-// Format angka
 const formatNumber = (num) => {
   return new Intl.NumberFormat('id-ID').format(num || 0);
 };
@@ -40,32 +40,71 @@ const formatDateWithTimezone = (date, timezone = 'Asia/Jakarta') => {
   }).format(date);
 };
 
+// Fungsi fetch dengan retry - PERBAIKI URL
+const fetchWithRetry = async (retries = 3, delay = 2000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      // 🔥 PERBAIKI: Gunakan relative URL, bukan absolute
+      const url = '/api/statistik';
+      
+      console.log(`🔄 Fetch attempt ${i + 1}/${retries}: ${url}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Fetch successful:', data);
+      return data;
+      
+    } catch (error) {
+      console.error(`❌ Fetch attempt ${i + 1}/${retries} failed:`, error);
+      
+      if (i === retries - 1) {
+        throw error;
+      }
+      
+      // Wait before retry with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+    }
+  }
+};
+
 export default function StatistikPengunjung() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await fetchWithRetry(3, 2000);
+      setData(result);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+      setError(err.message || 'Gagal memuat data statistik. Silakan coba lagi nanti.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/statistik', {
-          cache: 'no-store',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        if (!res.ok) throw new Error('Failed to fetch');
-        const result = await res.json();
-        setData(result);
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -73,29 +112,38 @@ export default function StatistikPengunjung() {
     return (
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-white">Memuat data statistik...</div>
+          <div className="inline-block">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+          </div>
+          <p className="text-gray-400">Memuat data statistik...</p>
         </div>
       </section>
     );
   }
 
-  if (error || !data) {
+  if (error || !data || data.error) {
     return (
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-red-400 mb-4">Gagal memuat data statistik</div>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Coba Lagi
-          </button>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-8 max-w-md mx-auto">
+            <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <h3 className="text-white font-semibold mb-2">Gagal Memuat Data</h3>
+            <p className="text-gray-400 mb-6">
+              {error || 'Terjadi kesalahan saat mengambil data statistik'}
+            </p>
+            <button 
+              onClick={() => fetchData()}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 mx-auto"
+            >
+              <ArrowPathIcon className="w-4 h-4" />
+              Coba Lagi
+            </button>
+          </div>
         </div>
       </section>
     );
   }
 
-  // ... rest of your component JSX (sama seperti sebelumnya)
   const pertumbuhanYoY = data.pertumbuhanYoY || 0;
   const pertumbuhanStyle = pertumbuhanYoY > 0 ? 'text-green-400' : pertumbuhanYoY < 0 ? 'text-red-400' : 'text-gray-400';
   const pertumbuhanIcon = pertumbuhanYoY > 0 ? '▲' : pertumbuhanYoY < 0 ? '▼' : '•';
@@ -126,7 +174,7 @@ export default function StatistikPengunjung() {
 
           {/* Grid Statistik */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card-card statistik - sama seperti sebelumnya */}
+            {/* Total Pengunjung */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-500/20 rounded-lg">
@@ -140,6 +188,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Hari Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-500/20 rounded-lg">
@@ -153,6 +202,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Online */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-yellow-500/20 rounded-lg">
@@ -166,6 +216,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Total Hits */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-red-500/20 rounded-lg">
@@ -179,6 +230,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Bulan Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-purple-500/20 rounded-lg">
@@ -192,6 +244,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Tahun Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-500/20 rounded-lg">
@@ -205,6 +258,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Tahun Lalu - FULL */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-pink-500/20 rounded-lg">
@@ -218,6 +272,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Pertumbuhan */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-emerald-500/20 rounded-lg">
@@ -234,8 +289,9 @@ export default function StatistikPengunjung() {
             </div>
           </div>
 
-          {/* Statistik Tambahan */}
+          {/* Statistik Tambahan Tahun Lalu */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Rata-rata Bulanan Tahun Lalu */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
@@ -256,6 +312,7 @@ export default function StatistikPengunjung() {
               </div>
             </div>
 
+            {/* Perbandingan dengan Periode Sama */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
@@ -282,6 +339,9 @@ export default function StatistikPengunjung() {
           <div className="mt-8 text-center text-sm text-gray-500">
             <ClockIcon className="w-4 h-4 inline mr-1" />
             Terakhir diperbarui: {updateTimeFormatted} WIB
+            {data.error && (
+              <span className="ml-2 text-yellow-500">(Data tidak lengkap)</span>
+            )}
           </div>
         </div>
       </section>
