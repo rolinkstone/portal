@@ -1,10 +1,12 @@
 // components/StatistikPengunjung.jsx
+'use client';
+
+import { useState, useEffect } from 'react';
 import { 
   UsersIcon, 
   CalendarIcon, 
   ChartBarIcon,
   BoltIcon, 
-  FireIcon,
   ChartPieIcon,
   GlobeAltIcon,
   ArrowTrendingUpIcon,
@@ -14,83 +16,11 @@ import {
 } from "@heroicons/react/24/outline";
 import StatistikTracker from "@/components/StatistikTracker";
 
-// Fungsi fetch dengan timeout
-async function fetchWithTimeout(url, options = {}, timeout = 10000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
-  }
-}
-
-// Fungsi getData dengan retry
-async function getData(retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                     (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-      
-      console.log(`🔄 Fetching stats (attempt ${i + 1}/${retries})...`);
-      
-      const res = await fetchWithTimeout(`${baseUrl}/api/statistik`, {
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }, 15000); // 15 seconds timeout
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      console.log('✅ Stats fetched successfully:', data);
-      return data;
-      
-    } catch (error) {
-      console.error(`❌ Error fetching stats (attempt ${i + 1}/${retries}):`, error);
-      
-      if (i === retries - 1) {
-        // Last attempt failed, return fallback data
-        console.log('📊 Using fallback data');
-        return {
-          pengunjungHariIni: 0,
-          totalHits: 0,
-          totalPengunjung: 0,
-          pengunjungBulanIni: 0,
-          pengunjungTahunIni: 0,
-          pengunjungTahunLalu: 0,
-          pengunjungTahunLaluPeriode: 0,
-          pertumbuhanYoY: 0,
-          pengunjungOnline: 0,
-          rataRataBulananTahunLalu: 0,
-          dataPerBulanTahunLalu: [],
-          tahunLalu: new Date().getFullYear() - 1,
-          tahunIni: new Date().getFullYear(),
-        };
-      }
-      
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-    }
-  }
-}
-
 // Format angka
 const formatNumber = (num) => {
   return new Intl.NumberFormat('id-ID').format(num || 0);
 };
 
-// Format angka dengan desimal
 const formatDecimal = (num) => {
   return new Intl.NumberFormat('id-ID', { 
     minimumFractionDigits: 0,
@@ -98,7 +28,6 @@ const formatDecimal = (num) => {
   }).format(num || 0);
 };
 
-// Fungsi untuk format tanggal dengan timezone yang konsisten
 const formatDateWithTimezone = (date, timezone = 'Asia/Jakarta') => {
   return new Intl.DateTimeFormat('id-ID', {
     timeZone: timezone,
@@ -111,30 +40,62 @@ const formatDateWithTimezone = (date, timezone = 'Asia/Jakarta') => {
   }).format(date);
 };
 
-export default async function StatistikPengunjung() {
-  const data = await getData();
+export default function StatistikPengunjung() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  // Jika data null atau error, tampilkan pesan dengan retry button
-  if (!data || data.error) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/statistik', {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch');
+        const result = await res.json();
+        setData(result);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
     return (
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="text-red-400 mb-4">
-              ⚠️ Gagal memuat data statistik
-            </div>
-            <button 
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Coba Lagi
-            </button>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-white">Memuat data statistik...</div>
         </div>
       </section>
     );
   }
 
+  if (error || !data) {
+    return (
+      <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-red-400 mb-4">Gagal memuat data statistik</div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  // ... rest of your component JSX (sama seperti sebelumnya)
   const pertumbuhanYoY = data.pertumbuhanYoY || 0;
   const pertumbuhanStyle = pertumbuhanYoY > 0 ? 'text-green-400' : pertumbuhanYoY < 0 ? 'text-red-400' : 'text-gray-400';
   const pertumbuhanIcon = pertumbuhanYoY > 0 ? '▲' : pertumbuhanYoY < 0 ? '▼' : '•';
@@ -142,22 +103,17 @@ export default async function StatistikPengunjung() {
   const sekarang = new Date();
   const tahunSekarang = sekarang.getFullYear();
   const tahunLalu = data.tahunLalu || (tahunSekarang - 1);
-  
-  // Gunakan fungsi format dengan timezone yang konsisten
   const tanggalFormat = formatDateWithTimezone(sekarang, 'Asia/Jakarta').split(' ')[0];
   const updateTimeFormatted = formatDateWithTimezone(sekarang, 'Asia/Jakarta');
   
-  // Nama bulan dalam Bahasa Indonesia
   const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
   return (
     <>
       <StatistikTracker />
-      
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
           {/* Header */}
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -170,8 +126,7 @@ export default async function StatistikPengunjung() {
 
           {/* Grid Statistik */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            {/* Total Pengunjung */}
+            {/* Card-card statistik - sama seperti sebelumnya */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-500/20 rounded-lg">
@@ -185,7 +140,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Hari Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-500/20 rounded-lg">
@@ -199,7 +153,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Online */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-yellow-500/20 rounded-lg">
@@ -213,7 +166,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Total Hits */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-red-500/20 rounded-lg">
@@ -227,7 +179,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Bulan Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-purple-500/20 rounded-lg">
@@ -241,7 +192,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Tahun Ini */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-500/20 rounded-lg">
@@ -255,7 +205,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Tahun Lalu - FULL */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-pink-500/20 rounded-lg">
@@ -269,7 +218,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Pertumbuhan */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-emerald-500/20 rounded-lg">
@@ -286,10 +234,8 @@ export default async function StatistikPengunjung() {
             </div>
           </div>
 
-          {/* Statistik Tambahan Tahun Lalu */}
+          {/* Statistik Tambahan */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Rata-rata Bulanan Tahun Lalu */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
@@ -310,7 +256,6 @@ export default async function StatistikPengunjung() {
               </div>
             </div>
 
-            {/* Perbandingan dengan Periode Sama */}
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
