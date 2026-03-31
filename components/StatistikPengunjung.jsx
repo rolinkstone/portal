@@ -14,25 +14,74 @@ import {
 } from "@heroicons/react/24/outline";
 import StatistikTracker from "@/components/StatistikTracker";
 
-// Client component untuk fetch data
-async function getData() {
+// Fungsi fetch dengan timeout
+async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/statistik`, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      }
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
     });
-    
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    
-    const data = await res.json();
-    return data;
+    clearTimeout(id);
+    return response;
   } catch (error) {
-    console.error('Error fetching stats:', error);
-    return null;
+    clearTimeout(id);
+    throw error;
+  }
+}
+
+// Fungsi getData dengan retry
+async function getData(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                     (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      
+      console.log(`🔄 Fetching stats (attempt ${i + 1}/${retries})...`);
+      
+      const res = await fetchWithTimeout(`${baseUrl}/api/statistik`, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }, 15000); // 15 seconds timeout
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      console.log('✅ Stats fetched successfully:', data);
+      return data;
+      
+    } catch (error) {
+      console.error(`❌ Error fetching stats (attempt ${i + 1}/${retries}):`, error);
+      
+      if (i === retries - 1) {
+        // Last attempt failed, return fallback data
+        console.log('📊 Using fallback data');
+        return {
+          pengunjungHariIni: 0,
+          totalHits: 0,
+          totalPengunjung: 0,
+          pengunjungBulanIni: 0,
+          pengunjungTahunIni: 0,
+          pengunjungTahunLalu: 0,
+          pengunjungTahunLaluPeriode: 0,
+          pertumbuhanYoY: 0,
+          pengunjungOnline: 0,
+          rataRataBulananTahunLalu: 0,
+          dataPerBulanTahunLalu: [],
+          tahunLalu: new Date().getFullYear() - 1,
+          tahunIni: new Date().getFullYear(),
+        };
+      }
+      
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
   }
 }
 
@@ -49,16 +98,37 @@ const formatDecimal = (num) => {
   }).format(num || 0);
 };
 
+// Fungsi untuk format tanggal dengan timezone yang konsisten
+const formatDateWithTimezone = (date, timezone = 'Asia/Jakarta') => {
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: timezone,
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }).format(date);
+};
+
 export default async function StatistikPengunjung() {
   const data = await getData();
 
-  // Jika data null, tampilkan pesan error
-  if (!data) {
+  // Jika data null atau error, tampilkan pesan dengan retry button
+  if (!data || data.error) {
     return (
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-red-400">
-            Gagal memuat data statistik
+          <div className="text-center">
+            <div className="text-red-400 mb-4">
+              ⚠️ Gagal memuat data statistik
+            </div>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Coba Lagi
+            </button>
           </div>
         </div>
       </section>
@@ -72,7 +142,10 @@ export default async function StatistikPengunjung() {
   const sekarang = new Date();
   const tahunSekarang = sekarang.getFullYear();
   const tahunLalu = data.tahunLalu || (tahunSekarang - 1);
-  const tanggalFormat = sekarang.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+  
+  // Gunakan fungsi format dengan timezone yang konsisten
+  const tanggalFormat = formatDateWithTimezone(sekarang, 'Asia/Jakarta').split(' ')[0];
+  const updateTimeFormatted = formatDateWithTimezone(sekarang, 'Asia/Jakarta');
   
   // Nama bulan dalam Bahasa Indonesia
   const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
@@ -263,14 +336,7 @@ export default async function StatistikPengunjung() {
           {/* Update Time */}
           <div className="mt-8 text-center text-sm text-gray-500">
             <ClockIcon className="w-4 h-4 inline mr-1" />
-            Terakhir diperbarui: {new Date().toLocaleString('id-ID', { 
-              day: 'numeric', 
-              month: 'long', 
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit'
-            })}
+            Terakhir diperbarui: {updateTimeFormatted} WIB
           </div>
         </div>
       </section>
