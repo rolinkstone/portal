@@ -39,6 +39,14 @@ export default function AplikasiBalai() {
       logo: "/Aplikasi/tr.png",
       link: "https://tambun-raya.bbpompky.id"
     },
+    {
+      id: 5,
+      nama: "TABELA RAYA",
+      deskripsi: "Sistem Pengelolaan Barang Milik Negara (BMN)",
+      kategori: "BMN",
+      logo: "/Aplikasi/tabelaraya.png",
+      link: "https://tabela-raya.bbpompky.id"
+    },
   ]);
 
   // State untuk kategori filter
