@@ -26,7 +26,7 @@ export default function Internal() {
   const internalApps = [
     { 
       src: "Internal/QMS.png", 
-      url: "https://sites.google.com/view/qmsbbpomdipalangkaraya/halamanmuka?authuser=3", 
+      url: "https://sites.google.com/view/qmsbbpomdipalangkaraya/", 
       title: "Quality Management System",
       desc: "Sistem Manajemen Mutu Terintegrasi",
       color: "from-blue-500 to-cyan-400",
