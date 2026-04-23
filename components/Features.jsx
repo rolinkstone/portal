@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   SparklesIcon, 
   ChevronRightIcon,
@@ -27,7 +27,7 @@ import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 
 export default function Features() {
   // Macro innovations data structure with placeholder images and links
-  const macroInnovations = [
+  const macroInnovationsOriginal = [
     {
       id: "si-paling-berakhlak",
       title: "Si PALING BerAKHLAK",
@@ -35,7 +35,7 @@ export default function Features() {
       icon: StarIconSolid,
       gradient: "from-blue-500 to-cyan-400",
       color: "blue",
-      image: "Inovasi/sipalingberakhlak.jpeg", // Ganti dengan file lokal
+      image: "Inovasi/sipalingberakhlak.jpeg",
       link: "/inovasi/si-paling-berakhlak",
       micros: [
         { title: "Aksi Bang Kahar", desc: "Ajang Silaturahmi Melalui Bangun Nilai Keharmonisan", link: "/inovasi/aksi-bang-kahar", icon: UserGroupIcon, image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=400&h=300&fit=crop" },
@@ -93,15 +93,15 @@ export default function Features() {
       icon: ChartBarIcon,
       gradient: "from-rose-500 to-red-400",
       color: "rose",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop",
+      image: "Inovasi/jendela_kinerja.jpeg", 
       link: "/inovasi/jendela-kinerja",
       micros: [
-        { title: "Bintang Kinerja", desc: "Penilaian Kinerja ASN Berbasis Digital", link: "/inovasi/bintang-kinerja", icon: TrophyIcon, image: "https://images.unsplash.com/photo-1565688534244-7d7ae1b9b3c9?w=400&h=300&fit=crop" },
-        { title: "Hapakat Data Kinerja", desc: "Forum Integrasi Data Kinerja", link: "/inovasi/hapakat-data-kinerja", icon: ChartBarIcon, image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop" },
-        { title: "Mahaga Sei KalTeng", desc: "Monitoring Keamanan Pangan", link: "/inovasi/mahaga-sei-kalteng", icon: ScaleIcon, image: "https://images.unsplash.com/photo-1581092335871-4a5a7b0d0b4e?w=400&h=300&fit=crop" },
-        { title: "Huma Mutu Obat", desc: "Sistem Penjaminan Mutu Obat", link: "/inovasi/huma-mutu-obat", icon: BeakerIcon, image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&h=300&fit=crop" },
-        { title: "P3K Paman", desc: "Pelayanan Publik dan Keamanan", link: "/inovasi/p3k-paman", icon: HeartIcon, image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop" },
-        { title: "Tabela Raya", desc: "Tabel Kinerja dan Akuntabilitas", link: "/inovasi/tabela-raya", icon: ClipboardDocumentListIcon, image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&h=300&fit=crop" }
+        { title: "Bintang Kinerja", desc: "Penilaian Kinerja ASN Berbasis Digital", link: "/inovasi/bintang-kinerja", icon: TrophyIcon, image: "Inovasi/images.png" },
+        { title: "Hapakat Data Kinerja", desc: "Forum Integrasi Data Kinerja", link: "/inovasi/hapakat-data-kinerja", icon: ChartBarIcon, image: "Inovasi/images.png" },
+        { title: "Mahaga Sei KalTeng", desc: "Monitoring Keamanan Pangan", link: "/inovasi/mahaga-sei-kalteng", icon: ScaleIcon, image: "Inovasi/images.png" },
+        { title: "Huma Mutu Obat", desc: "Sistem Penjaminan Mutu Obat", link: "/inovasi/huma-mutu-obat", icon: BeakerIcon, image: "Inovasi/images.png" },
+        { title: "P3K Paman", desc: "Pelayanan Publik dan Keamanan", link: "/inovasi/p3k-paman", icon: HeartIcon, image: "Inovasi/images.png" },
+        { title: "Tabela Raya", desc: "Tabel Kinerja dan Akuntabilitas", link: "/inovasi/tabela-raya", icon: ClipboardDocumentListIcon, image: "Inovasi/images.png" }
       ]
     },
     {
@@ -135,7 +135,7 @@ export default function Features() {
       icon: WifiIcon,
       gradient: "from-blue-500 to-cyan-400",
       color: "blue",
-      image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&h=500&fit=crop",
+      image: "Inovasi/laura.jpg", 
       link: "/inovasi/smart-laura",
       micros: []
     },
@@ -146,7 +146,7 @@ export default function Features() {
       icon: BuildingOfficeIcon,
       gradient: "from-purple-500 to-pink-400",
       color: "purple",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=500&fit=crop",
+      image: "Inovasi/berdikari.jpeg", 
       external: true,
       link: "https://berdikari.bbpompky.id",
       micros: [
@@ -160,7 +160,7 @@ export default function Features() {
       icon: UserGroupIcon,
       gradient: "from-amber-500 to-orange-400",
       color: "amber",
-      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&h=500&fit=crop",
+      image: "Inovasi/laura-intan.jpeg", 
       link: "/inovasi/laura-intan",
       micros: []
     },
@@ -171,7 +171,7 @@ export default function Features() {
       icon: BeakerIcon,
       gradient: "from-emerald-500 to-teal-400",
       color: "emerald",
-      image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=500&fit=crop",
+      image: "Inovasi/inpro.jpeg", 
       link: "/inovasi/kahayan-inpro",
       micros: [
         { title: "Betang Akzi", desc: "Rumah Akselerasi Kompetensi Gizi", link: "/inovasi/betang-akzi", icon: AcademicCapIcon, image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop" }
@@ -189,6 +189,26 @@ export default function Features() {
       micros: []
     }
   ];
+
+  // Fisher-Yates shuffle algorithm
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const [macroInnovations, setMacroInnovations] = useState([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    // Randomize on every page load/refresh
+    const shuffled = shuffleArray(macroInnovationsOriginal);
+    setMacroInnovations(shuffled);
+  }, []);
 
   const [expandedId, setExpandedId] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
@@ -273,6 +293,11 @@ export default function Features() {
     show: { opacity: 1, x: 0 }
   };
 
+  // Don't render until client-side to avoid hydration mismatch
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <section id="features" className="relative py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 overflow-hidden">
       {/* Background Elements */}
@@ -314,6 +339,7 @@ export default function Features() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.1 }}
+          key={macroInnovations.map(m => m.id).join(',')}
         >
           {macroInnovations.map((macro) => {
             const Icon = macro.icon;
@@ -327,6 +353,7 @@ export default function Features() {
                 onMouseEnter={() => setHoveredId(macro.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 className="group relative"
+                layout
               >
                 <div 
                   className={`relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-2xl overflow-hidden border transition-all duration-500 cursor-pointer
@@ -334,23 +361,22 @@ export default function Features() {
                 >
                   {/* Klik pada area card (selain tombol expand) akan menuju ke halaman macro */}
                   <div onClick={() => handleMacroClick(macro)} className="cursor-pointer">
-                    {/* Image Header */}
-                    <div className="relative h-32 overflow-hidden">
+                    {/* Image Header - LARGER SIZE */}
+                    <div className="relative h-48 overflow-hidden">
                       <img 
                         src={macro.image} 
                         alt={macro.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         onError={(e) => {
-                          // Fallback jika gambar tidak ditemukan
                           e.target.src = "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=500&fit=crop";
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
                       
-                      {/* Icon overlay */}
+                      {/* Icon overlay - LARGER */}
                       <div className="absolute bottom-3 left-3">
-                        <div className={`w-10 h-10 rounded-xl ${getGradientClass(macro.gradient)} flex items-center justify-center shadow-lg`}>
-                          <Icon className="w-5 h-5 text-white" />
+                        <div className={`w-12 h-12 rounded-xl ${getGradientClass(macro.gradient)} flex items-center justify-center shadow-lg`}>
+                          <Icon className="w-6 h-6 text-white" />
                         </div>
                       </div>
 
@@ -363,8 +389,8 @@ export default function Features() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-4">
-                      <h3 className="text-lg font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
+                    <div className="p-5">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
                         {macro.title}
                       </h3>
                       <p className="text-sm text-gray-400 line-clamp-2">
@@ -373,14 +399,14 @@ export default function Features() {
                     </div>
                   </div>
 
-                  {/* Tombol Expand/Collapse untuk Micro - terpisah dari klik macro */}
+                  {/* Tombol Expand/Collapse untuk Micro */}
                   {hasMicros && (
                     <div 
-                      className="absolute bottom-3 right-3 z-20"
+                      className="absolute bottom-4 right-4 z-20"
                       onClick={(e) => toggleExpand(macro.id, e)}
                     >
-                      <div className={`w-7 h-7 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-slate-700/80 cursor-pointer border border-slate-600/50 ${isExpanded ? 'rotate-180' : ''}`}>
-                        <ChevronRightIcon className="w-4 h-4 text-cyan-300" />
+                      <div className={`w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-slate-700/80 cursor-pointer border border-slate-600/50 ${isExpanded ? 'rotate-180' : ''}`}>
+                        <ChevronRightIcon className="w-5 h-5 text-cyan-300" />
                       </div>
                     </div>
                   )}
@@ -393,10 +419,10 @@ export default function Features() {
                         initial="hidden"
                         animate="show"
                         exit="exit"
-                        className="px-4 pb-4"
+                        className="px-5 pb-5"
                       >
-                        <div className="pt-3 border-t border-slate-700/50">
-                          <p className="text-xs text-cyan-300/70 mb-2 flex items-center gap-1">
+                        <div className="pt-4 border-t border-slate-700/50">
+                          <p className="text-xs text-cyan-300/70 mb-3 flex items-center gap-1">
                             <SparklesIcon className="w-3 h-3" />
                             Program Turunan
                           </p>
@@ -412,9 +438,9 @@ export default function Features() {
                                   className="micro-item"
                                   onClick={(e) => handleMicroClick(micro.link, e)}
                                 >
-                                  <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-all duration-300 cursor-pointer group/micro">
-                                    {/* Micro Image Thumbnail */}
-                                    <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                                  <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-all duration-300 cursor-pointer group/micro">
+                                    {/* Micro Image Thumbnail - LARGER */}
+                                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                                       <img 
                                         src={micro.image} 
                                         alt={micro.title}
