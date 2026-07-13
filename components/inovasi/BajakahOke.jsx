@@ -139,15 +139,14 @@ export default function BajakahOkePage() {
                 <h3 className="text-2xl font-bold text-green-900 mb-6">
                   Video Bajakah OK
                 </h3>
-                <div className="bg-gray-900 rounded-2xl overflow-hidden shadow-xl">
-                  <video
-                    src="/video/bajakah_ok.mov"
-                    controls
-                    className="w-full h-auto max-h-[600px]"
-                    poster="/Inovasi/sigap.png"
-                  >
-                    Browser Anda tidak mendukung pemutaran video.
-                  </video>
+                <div className="aspect-video rounded-2xl overflow-hidden shadow-xl bg-gray-900">
+                  <iframe
+                    src="https://www.youtube.com/embed/lk2Fnw1dOrI"
+                    title="Video Bajakah OK"
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
                 </div>
               </div>
 
