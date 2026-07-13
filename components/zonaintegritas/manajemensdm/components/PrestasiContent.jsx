@@ -71,7 +71,6 @@ const PrestasiContent = ({ content }) => {
       result = result.filter(achievement => {
         return (
           achievement.name.toLowerCase().includes(query) ||
-          achievement.nip.includes(query) ||
           achievement.prestasi.toLowerCase().includes(query) ||
           achievement.jabatan.toLowerCase().includes(query) ||
           achievement.kategori.toLowerCase().includes(query) ||
@@ -254,9 +253,6 @@ const PrestasiContent = ({ content }) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   NO
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  NIP
-                </th>
                 <th 
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('nama')}
@@ -308,9 +304,6 @@ const PrestasiContent = ({ content }) => {
                     <tr key={achievement.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-medium text-gray-900">
                         {displayNumber}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-mono">
-                        {achievement.nip}
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm font-medium text-gray-900">{achievement.name}</div>

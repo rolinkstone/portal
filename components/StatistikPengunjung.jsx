@@ -15,7 +15,6 @@ import {
   CalendarDaysIcon,
   ExclamationTriangleIcon
 } from "@heroicons/react/24/outline";
-import StatistikTracker from "@/components/StatistikTracker";
 
 const formatNumber = (num) => {
   return new Intl.NumberFormat('id-ID').format(num || 0);
@@ -159,7 +158,6 @@ export default function StatistikPengunjung() {
 
   return (
     <>
-      <StatistikTracker />
       <section className="w-full py-16 bg-gradient-to-br from-gray-900 via-slate-900 to-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}

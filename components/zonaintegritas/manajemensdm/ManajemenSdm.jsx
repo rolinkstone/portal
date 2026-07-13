@@ -7,9 +7,13 @@ import { profileContent } from "./content/profile";
 import ProfileContent from "./components/ProfileContent";
 import { prestasiContent } from "./content/prestasi";
 import PrestasiContent from "./components/PrestasiContent";
+import { useSession, signIn } from "next-auth/react";
 
 export default function ManajemenSdm() {
+  const { data: session, status } = useSession();
   const [activeMenu, setActiveMenu] = useState("profile");
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [clickedMenuItem, setClickedMenuItem] = useState(null);
 
   const contentMap = {
     profile: profileContent,
@@ -20,13 +24,27 @@ export default function ManajemenSdm() {
 
   // Handle menu click
   const handleMenuClick = (item) => {
-    if (item.type === "external" && item.link) {
+    if (item.external && item.loginRequired && !session) {
+      setClickedMenuItem(item);
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (item.external && item.url) {
       // Buka link eksternal di tab baru
-      window.open(item.link, "_blank", "noopener,noreferrer");
+      window.open(item.url, "_blank", "noopener,noreferrer");
     } else {
       // Internal menu
       setActiveMenu(item.id);
     }
+  };
+
+  // Fungsi untuk login dan redirect
+  const handleLoginAndRedirect = () => {
+    setShowLoginModal(false);
+    signIn("keycloak", {
+      callbackUrl: clickedMenuItem?.url || "/manajemensdm"
+    });
   };
 
   // Fungsi render konten dinamis
@@ -210,25 +228,39 @@ export default function ManajemenSdm() {
                     <button
                       key={item.id}
                       onClick={() => handleMenuClick(item)}
-                      className={`w-full text-left flex items-center p-4 rounded-xl mb-2 transition-all duration-200 ${
+                      className={`w-full text-left flex items-start p-4 rounded-xl mb-2 transition-all duration-200 ${
                         activeMenu === item.id
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
+                          : item.external
+                          ? "text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 hover:text-purple-600 border border-transparent hover:border-purple-200"
                           : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                      } ${item.type === "external" ? "cursor-pointer" : ""}`}
+                      }`}
                     >
-                      <span className="text-xl mr-3">{item.icon}</span>
-                      <span className="font-medium">{item.title}</span>
-                      
-                      {/* Indicator untuk menu aktif */}
-                      {activeMenu === item.id && item.type === "internal" && (
-                        <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      )}
-                      
-                      {/* Indicator untuk external link */}
-                      {item.type === "external" && (
-                        <svg className="w-4 h-4 ml-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <span className="text-xl mr-3 mt-1">{item.icon}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium block">{item.title}</span>
+                          {item.external && (
+                            <span className={`text-xs px-2 py-0.5 rounded-full ml-2 ${
+                              activeMenu === item.id
+                                ? "bg-blue-400 text-white"
+                                : "bg-purple-100 text-purple-700"
+                            }`}>
+                              dpeg
+                            </span>
+                          )}
+                        </div>
+                        {item.external && item.loginRequired && !session && (
+                          <span className="text-xs text-amber-600 mt-1 flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd" />
+                            </svg>
+                            Login Required
+                          </span>
+                        )}
+                      </div>
+                      {item.external && (
+                        <svg className="w-4 h-4 ml-2 mt-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                       )}
@@ -268,6 +300,64 @@ export default function ManajemenSdm() {
           </div>
         </div>
       </section>
+
+      {/* Modal Login */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Akses Diperlukan</h3>
+              <p className="text-gray-600 mb-4">
+                Untuk mengakses <span className="font-semibold text-purple-600">{clickedMenuItem?.title}</span>,
+                Anda perlu login terlebih dahulu menggunakan Single Sign-On (SSO) BBPOM di Palangka Raya.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-amber-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Akses Terbatas</p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      Hanya pegawai BBPOM di Palangka Raya yang memiliki akun SSO yang dapat mengakses aplikasi ini.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={handleLoginAndRedirect}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm hover:shadow font-medium tracking-tight flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Login dengan SSO Badan POM
+              </button>
+
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="px-6 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+              >
+                Batalkan
+              </button>
+
+              <div className="text-center pt-4 border-t border-gray-200">
+                <p className="text-xs text-gray-500">
+                  Lupa password atau masalah login? Hubungi Helpdesk IT BBPOM di Palangka Raya
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

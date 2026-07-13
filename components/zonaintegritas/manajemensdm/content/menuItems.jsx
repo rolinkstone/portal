@@ -17,7 +17,8 @@ export const menuItems = [
     id: "kompetensi",
     title: "Pengembangan Kompetensi",
     icon: "📚",
-    type: "external",
-    link: "https://sites.google.com/view/d-peg"
+    external: true,
+    loginRequired: true,
+    url: "https://sites.google.com/view/d-peg"
   }
 ];

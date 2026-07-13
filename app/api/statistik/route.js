@@ -20,21 +20,19 @@ export async function GET() {
     console.log('✅ Koneksi database berhasil');
     
     const now = new Date();
-    const utcYear = now.getUTCFullYear();
-    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const utcDay = String(now.getUTCDate()).padStart(2, '0');
-    const utcDate = `${utcYear}-${utcMonth}-${utcDay}`;
+    const jakartaDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+    const [jakartaYear, jakartaMonth, jakartaDay] = jakartaDate.split('-');
     
-    const startOfYear = `${utcYear}-01-01`;
-    const endOfToday = utcDate;
-    const startOfMonth = `${utcYear}-${utcMonth}-01`;
-    const tahunLalu = utcYear - 1;
+    const startOfYear = `${jakartaYear}-01-01`;
+    const endOfToday = jakartaDate;
+    const startOfMonth = `${jakartaYear}-${jakartaMonth}-01`;
+    const tahunLalu = Number(jakartaYear) - 1;
     const startOfLastYear = `${tahunLalu}-01-01`;
-    const endOfLastYearSameDay = `${tahunLalu}-${utcMonth}-${utcDay}`;
+    const endOfLastYearSameDay = `${tahunLalu}-${jakartaMonth}-${jakartaDay}`;
     
     const batasWaktu = Math.floor(Date.now() / 1000) - 300;
 
-    console.log('📅 Query dengan tanggal UTC:', utcDate);
+    console.log('📅 Query dengan tanggal Asia/Jakarta:', jakartaDate);
     console.log('Start of month:', startOfMonth);
     console.log('End of today:', endOfToday);
 
@@ -56,13 +54,13 @@ export async function GET() {
           SELECT COUNT(*) as total 
           FROM statistik 
           WHERE online > ? AND tanggal = ?
-        `, [batasWaktu, utcDate]),
+        `, [batasWaktu, jakartaDate]),
         
         connection.execute(`
           SELECT COUNT(*) as total 
           FROM statistik 
           WHERE tanggal = ?
-        `, [utcDate]),
+        `, [jakartaDate]),
         
         connection.execute(
           "SELECT COALESCE(SUM(hits), 0) AS total FROM statistik"
@@ -74,12 +72,12 @@ export async function GET() {
         
         connection.execute(
           "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
-          [startOfMonth, endOfToday]
+          [startOfMonth, jakartaDate]
         ),
         
         connection.execute(
           "SELECT COUNT(*) AS total FROM statistik WHERE tanggal BETWEEN ? AND ?", 
-          [startOfYear, endOfToday]
+          [startOfYear, jakartaDate]
         ),
         
         connection.execute(
@@ -127,7 +125,7 @@ export async function GET() {
         rataRataBulananTahunLalu: rataRataBulananTahunLalu,
         dataPerBulanTahunLalu: pengunjungPerBulanTahunLalu,
         tahunLalu: tahunLalu,
-        tahunIni: utcYear,
+        tahunIni: Number(jakartaYear),
         serverTimestamp: new Date().toISOString(),
       };
     })();
@@ -158,8 +156,8 @@ export async function GET() {
       pengunjungOnline: 0,
       rataRataBulananTahunLalu: 0,
       dataPerBulanTahunLalu: [],
-      tahunLalu: new Date().getUTCFullYear() - 1,
-      tahunIni: new Date().getUTCFullYear(),
+      tahunLalu: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }).split('-')[0] - 1,
+      tahunIni: Number(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }).split('-')[0]),
       error: true,
       errorMessage: err.message,
     }, { 

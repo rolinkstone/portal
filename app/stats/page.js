@@ -1,4 +1,6 @@
 // app/stats/page.js
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import pool from "@/lib/db";
 import { redirect } from 'next/navigation';
 
@@ -46,6 +48,12 @@ async function getStats() {
 }
 
 export default async function StatsPage() {
+  const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    redirect("/api/auth/signin");
+  }
+
   const stats = await getStats();
   
   if (!stats) {

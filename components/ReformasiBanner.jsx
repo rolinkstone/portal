@@ -5,13 +5,13 @@ import { motion } from "framer-motion";
 export default function ReformasiBanner() {
   return (
     <a
-      href="https://rb.bbpompky.id"
+      href={process.env.NEXT_PUBLIC_RB_URL || "https://rb.bbpompky.id"}
       target="_blank"
       rel="noopener noreferrer"
       className="block w-full"
     >
     <section className="relative w-full cursor-pointer overflow-hidden bg-black">
-  <picture onClick={() => window.open("https://rb.bbpompky.id", "_blank")}>
+  <picture onClick={() => window.open(process.env.NEXT_PUBLIC_RB_URL || "https://rb.bbpompky.id", "_blank")}>
     {/* Desktop */}
     <source
       srcSet="/rb/rb-desktop.gif"

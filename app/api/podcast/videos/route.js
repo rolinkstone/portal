@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
 
-const API_KEY = "AIzaSyCW9ii_em-nNgmqOPB6VCX-Xj8OuFUldtw";
-const PLAYLIST_ID = "PL-5H8rDv_lsEhd9azh2z_B1-XGuCULqkI"; // playlist podcast
+const API_KEY = process.env.YOUTUBE_API_KEY;
+const PLAYLIST_ID = process.env.YOUTUBE_PLAYLIST_ID || "PL-5H8rDv_lsEhd9azh2z_B1-XGuCULqkI"; // playlist podcast
 
 export async function GET() {
   try {

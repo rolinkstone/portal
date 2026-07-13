@@ -31,14 +31,7 @@ const ProfileContent = ({ content }) => {
     const sortedArray = [...employeesArray];
     
     sortedArray.sort((a, b) => {
-      if (sortConfig.key === 'nip') {
-        // Sort by NIP (treat as string for sorting)
-        const nipA = a.nip.toLowerCase();
-        const nipB = b.nip.toLowerCase();
-        if (nipA < nipB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (nipA > nipB) return sortConfig.direction === 'ascending' ? 1 : -1;
-        return 0;
-      } else if (sortConfig.key === 'name') {
+      if (sortConfig.key === 'name') {
         // Sort by name
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
@@ -87,7 +80,6 @@ const ProfileContent = ({ content }) => {
       result = result.filter(employee => {
         return (
           employee.name.toLowerCase().includes(query) ||
-          employee.nip.includes(query) ||
           employee.jabatan.toLowerCase().includes(query) ||
           employee.pangkat.toLowerCase().includes(query) ||
           employee.tipe.toLowerCase().includes(query)
@@ -236,7 +228,7 @@ const ProfileContent = ({ content }) => {
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Cari nama, NIP, atau jabatan..."
+                  placeholder="Cari nama atau jabatan..."
                   className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
                 {searchQuery && (
@@ -276,15 +268,6 @@ const ProfileContent = ({ content }) => {
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   NO
-                </th>
-                <th 
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('nip')}
-                >
-                  <div className="flex items-center">
-                    NIP
-                    {getSortIcon('nip')}
-                  </div>
                 </th>
                 <th 
                   className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -337,15 +320,6 @@ const ProfileContent = ({ content }) => {
                     <tr key={employee.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-medium text-gray-900">
                         {displayNumber}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-mono">
-                        {searchQuery && employee.nip.includes(searchQuery) ? (
-                          <span dangerouslySetInnerHTML={{ 
-                            __html: highlightMatch(employee.nip, searchQuery) 
-                          }} />
-                        ) : (
-                          employee.nip
-                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm font-medium text-gray-900">
@@ -440,7 +414,7 @@ const ProfileContent = ({ content }) => {
                 </span> dari <span className="font-semibold">{filteredEmployees.length}</span> pegawai
                 {searchQuery && (
                   <span className="ml-2 text-blue-600">
-                    (Diurutkan berdasarkan {sortConfig.key === 'nip' ? 'NIP' : sortConfig.key} {sortConfig.direction === 'ascending' ? '↑' : '↓'})
+                    (Diurutkan berdasarkan {sortConfig.key} {sortConfig.direction === 'ascending' ? '↑' : '↓'})
                   </span>
                 )}
               </div>
@@ -524,7 +498,7 @@ const ProfileContent = ({ content }) => {
               Halaman <span className="font-semibold">{currentPage}</span> dari <span className="font-semibold">{totalPages}</span>
               {sortConfig.key !== 'id' && (
                 <span className="ml-2 text-blue-600">
-                  • Diurutkan berdasarkan {sortConfig.key === 'nip' ? 'NIP' : sortConfig.key} 
+                  • Diurutkan berdasarkan {sortConfig.key} 
                   ({sortConfig.direction === 'ascending' ? 'A-Z' : 'Z-A'})
                 </span>
               )}

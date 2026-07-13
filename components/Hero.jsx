@@ -135,7 +135,7 @@ export default function Hero() {
             }}
           >
             <a
-              href="https://palangkaraya.pom.go.id"
+              href={process.env.NEXT_PUBLIC_POM_URL || "https://palangkaraya.pom.go.id"}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl shadow-2xl hover:shadow-emerald-500/25 hover:scale-[1.02] transition-all duration-300 group border border-white/10 backdrop-blur-sm"

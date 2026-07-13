@@ -1,5 +1,5 @@
 export default async function BeritaList() {
-  const res = await fetch("https://bbpompky.id/spbe/scrape-berita.php", {
+  const res = await fetch(process.env.NEXT_PUBLIC_BERITA_API_URL || "https://bbpompky.id/spbe/scrape-berita.php", {
     cache: "no-store",
   });
 
