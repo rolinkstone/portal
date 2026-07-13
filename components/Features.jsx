@@ -35,8 +35,8 @@ export default function Features() {
     { 
       title: "Laura Intan", 
       desc: "Layanan Publik Ramah dan Inklusif Bagi Kelompok Rentan", 
-      img: "Inovasi/laura-intan.jpeg", 
-      avatar: "Inovasi/laura-intan.jpeg",
+      img: "Inovasi/laura_intan.png", 
+      avatar: "Inovasi/laura_intan.png",
       category: "Layanan Inklusif",
       icon: UserGroupIcon,
       gradient: "from-pink-500 to-rose-400",

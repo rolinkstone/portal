@@ -133,7 +133,7 @@ export default function LauraIntanPage() {
             {/* HERO IMAGE */}
             <div className="relative h-96 w-full">
               <Image
-                src="/Inovasi/laura-intan.jpeg"
+                src="/Inovasi/laura_intan.png"
                 alt="Laura Intan - Layanan Publik Ramah dan Inklusif"
                 fill
                 className="object-cover"
