@@ -178,6 +178,25 @@ export default function BajakahOkePage() {
                 </div>
               </div>
 
+              {/* AKSES LINK */}
+              <div className="text-center">
+                <a
+                  href="https://bit.ly/SIGAP-BBPOMPKY"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-2xl shadow-xl hover:shadow-green-500/25 hover:scale-[1.02] transition-all duration-300 group"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>Akses SIGAP</span>
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+                <p className="text-gray-500 text-sm mt-3">bit.ly/SIGAP-BBPOMPKY</p>
+              </div>
+
               {/* PENUTUP */}
               <div className="p-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl text-center">
                 <p className="text-gray-700 text-lg leading-relaxed">

@@ -45,7 +45,7 @@ export default function Features() {
     },
     { 
       title: "Bajakah OK", 
-      desc: "Bersama Jaga Integritas Kalteng dengan Oversight Komprehensif", 
+      desc: "Bersama Jaga Integritas Kalteng dengan Oversight Komprehensif — akses di bit.ly/SIGAP-BBPOMPKY", 
       img: "Inovasi/sigap.png", 
       avatar: "Inovasi/sigap.png",
       category: "Anti Korupsi",
