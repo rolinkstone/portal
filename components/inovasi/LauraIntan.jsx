@@ -175,7 +175,7 @@ export default function LauraIntanPage() {
                       <div className="flex items-start gap-3 p-3 bg-pink-50 rounded-xl">
                         <FileText className="w-5 h-5 text-pink-600 flex-shrink-0 mt-0.5" />
                         <p className="text-sm text-gray-700">
-                          <strong>Permenpan RB Nomor 7 Tahun 2024</strong> — Pembinaan
+                          <strong>PEDOMAN MENPAN No.7 Tahun 2024</strong> — Pembinaan
                           Pelayanan Publik Ramah Kelompok Rentan
                         </p>
                       </div>
