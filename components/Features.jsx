@@ -46,8 +46,8 @@ export default function Features() {
     { 
       title: "Bajakah OK", 
       desc: "Bersama Jaga Integritas Kalteng dengan Oversight Komprehensif", 
-      img: "Inovasi/aoc/logo-aoc.png", 
-      avatar: "Inovasi/aoc/logo-aoc.png",
+      img: "Inovasi/sigap.png", 
+      avatar: "Inovasi/sigap.png",
       category: "Anti Korupsi",
       icon: GlobeAltIcon,
       gradient: "from-green-500 to-emerald-400",

@@ -43,7 +43,7 @@ export default function BajakahOkePage() {
             <div className="relative h-96 w-full flex items-center justify-center bg-gradient-to-br from-green-100 to-emerald-50">
               <div className="text-center p-12">
                 <Image
-                  src="/Inovasi/aoc/logo-aoc.png"
+                  src="/Inovasi/sigap.png"
                   alt="Bajakah OK - Logo"
                   width={200}
                   height={200}
@@ -144,7 +144,7 @@ export default function BajakahOkePage() {
                     src="/video/bajakah_ok.mov"
                     controls
                     className="w-full h-auto max-h-[600px]"
-                    poster="/Inovasi/aoc/logo-aoc.png"
+                    poster="/Inovasi/sigap.png"
                   >
                     Browser Anda tidak mendukung pemutaran video.
                   </video>
