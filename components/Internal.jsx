@@ -25,10 +25,10 @@ export default function Internal() {
 
   const internalApps = [
     { 
-      src: "Internal/QMS.png", 
-      url: "https://sites.google.com/view/qmsbbpomdipalangkaraya/", 
-      title: "Quality Management System",
-      desc: "Sistem Manajemen Mutu Terintegrasi",
+      src: "Internal/betang-harmoni.png", 
+      url: "https://sites.google.com/view/betangharmoni?usp=sharing", 
+      title: "Betang Harmoni",
+      desc: "Harmonisasi Layanan Terpadu",
       color: "from-blue-500 to-cyan-400",
       icon: Shield
     },
@@ -64,14 +64,7 @@ export default function Internal() {
       color: "from-rose-500 to-pink-400",
       icon: Users
     },
-    { 
-      src: "Internal/bmn.png", 
-      url: "https://sites.google.com/view/bmn-pky", 
-      title: "BMN Digital",
-      desc: "Sistem Pengelolaan Barang Milik Negara",
-      color: "from-indigo-500 to-blue-400",
-      icon: Building2
-    },
+    
   ];
 
   const loopedApps = [...internalApps, ...internalApps];
