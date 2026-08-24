@@ -44,7 +44,7 @@ export default function Internal() {
       src: "Internal/smap_new.png", 
       url: "https://drive.google.com/drive/folders/1VDjkj5Xn7TxwfI251SJLzWVslhpSUBlL", 
       title: "SMAP",
-      desc: "Sistem Manajemen Arsip dan Perpustakaan",
+      desc: "Sistem Manajemen Anti Penyuapan",
       color: "from-purple-500 to-violet-400",
       icon: Archive
     },
