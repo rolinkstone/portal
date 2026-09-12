@@ -8,12 +8,14 @@ import path from "node:path";
  * Kanvas 3584 x 1184 px (rasio ~3:1). Rasio file inilah yang menentukan tinggi
  * banner, jadi selama tetap ~3:1 tampilannya proporsional di lebar berapa pun.
  *
- * Lebar TAMPIL di halaman diatur oleh kelas `max-w-3xl` (768 px) di bawah.
+ * Lebar TAMPIL di halaman diatur oleh kelas `max-w-6xl` (1152 px) di bawah.
  * Tangga pilihan lebar:
  *   max-w-2xl = 672px   (paling kecil)
- *   max-w-3xl = 768px   <-- sekarang
+ *   max-w-3xl = 768px
  *   max-w-4xl = 896px
  *   max-w-5xl = 1024px
+ *   max-w-6xl = 1152px  <-- sekarang
+ *   max-w-7xl = 1280px
  *   max-w-full = selebar halaman
  *
  * Catatan ukuran: tampil di 736 px hanya butuh file ~1472 px lebar untuk layar
@@ -39,7 +41,7 @@ export default function LauraAssistantBanner() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Buka LAURA Assistant, layanan AI untuk ulasan regulasi dan analisis"
-        className="group mx-auto block w-full max-w-3xl px-4"
+        className="group mx-auto block w-full max-w-6xl px-4"
       >
         <img
           src={POSTER_SRC}
