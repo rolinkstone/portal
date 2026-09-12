@@ -1,9 +1,25 @@
 export default async function BeritaList() {
-  const res = await fetch(process.env.NEXT_PUBLIC_BERITA_API_URL || "https://bbpompky.id/spbe/scrape-berita.php", {
-    cache: "no-store",
-  });
+  let berita = [];
 
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_BERITA_API_URL || "https://bbpompky.id/spbe/scrape-berita.php",
+      { cache: "no-store" }
+    );
+
+    const data = await res.json();
+
+    // API bisa membalas 200 tapi berisi objek error (mis. {"error": "..."})
+    // alih-alih array. Tanpa pengecekan ini, satu gangguan di sumber berita
+    // membuat seluruh halaman depan gagal render (data.map is not a function).
+    if (Array.isArray(data)) {
+      berita = data;
+    } else {
+      console.error("Respons API berita tidak berbentuk array:", data);
+    }
+  } catch (err) {
+    console.error("Gagal memuat berita:", err);
+  }
 
   return (
     <section id="berita" className="py-16 md:py-20 bg-gradient-to-br from-[#0A1A2F] via-[#112A4E] to-[#1A3D6B] relative overflow-hidden">
@@ -36,8 +52,14 @@ export default async function BeritaList() {
         </div>
 
         {/* News Grid - lebih padat */}
+        {berita.length === 0 && (
+          <p className="text-center text-gray-300/80 text-sm md:text-base bg-white/5 border border-white/10 rounded-xl px-6 py-8">
+            Berita sedang tidak dapat dimuat saat ini. Silakan coba beberapa saat lagi.
+          </p>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data.map((item, i) => (
+          {berita.map((item, i) => (
             <article
               key={i}
               className="group relative bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm 

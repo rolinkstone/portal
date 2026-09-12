@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import LauraAssistantBanner from "@/components/LauraAssistantBanner";
 import Features from "@/components/Features";
 import Internal from "@/components/Internal";
 import BeritaList from "@/components/BeritaList";
@@ -14,6 +15,7 @@ export default function Home() {
      <VisitorTracker /> {/* POST visitor saat page dibuka */}
     <Navbar />
     <Hero />
+    <LauraAssistantBanner />
     <Features />
     <Internal />
     <BeritaList />

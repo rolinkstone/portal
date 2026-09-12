@@ -47,6 +47,14 @@ export default function AplikasiBalai() {
       logo: "/Aplikasi/tabelaraya.png",
       link: "https://tabela-raya.bbpompky.id"
     },
+    {
+      id: 6,
+      nama: "ECIPAR",
+      deskripsi: "Arsip Digital Kearsipan",
+      kategori: "Kearsipan",
+      logo: "/Aplikasi/ecipar.png",
+      link: "https://ecipar.bbpompky.id"
+    },
   ]);
 
   // State untuk kategori filter
