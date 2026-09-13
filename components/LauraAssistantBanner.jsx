@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Banner promosi LAURA Assistant (https://asisten-laura.bbpompky.id).
+ * Banner promosi LAURA Assistant (http://laura-ai.bbpompky.id).
  *
  * Aset desain final: /public/Inovasi/laura-assistant.png
  * Kanvas 3584 x 1184 px (rasio ~3:1). Rasio file inilah yang menentukan tinggi
@@ -27,7 +27,7 @@ import path from "node:path";
  * <img> tidak andal, karena kalau gambar gagal dimuat sebelum React hydration
  * handler-nya tidak pernah dipanggil dan yang tampil justru ikon gambar rusak.
  */
-const LAURA_ASSISTANT_URL = "https://asisten-laura.bbpompky.id";
+const LAURA_ASSISTANT_URL = "http://laura-ai.bbpompky.id";
 const POSTER_SRC = "/Inovasi/laura-assistant.png";
 const POSTER_PATH = ["public", "Inovasi", "laura-assistant.png"];
 
